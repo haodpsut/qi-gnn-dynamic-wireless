@@ -24,6 +24,7 @@ def run(shell="iridium", seeds=(0, 1, 2), n_train=8, n_eval=6,
     walker = iridium_like() if shell == "iridium" else starlink_mini()
     ops = ["gcn", "heat", "qw"]
     agg = {op: {"mae": [], "aurc": [], "params": None} for op in ops}
+    perseed = []   # (seed, op, mae, aurc) rows, backs the per-seed table
 
     for seed in seeds:
         train = make_leo_samples(walker, n_train, norm="eccentricity",
@@ -36,6 +37,7 @@ def run(shell="iridium", seeds=(0, 1, 2), n_train=8, n_eval=6,
             agg[op]["mae"].append(r["mae"])
             agg[op]["aurc"].append(r["aurc"])
             agg[op]["params"] = r["params"]
+            perseed.append((seed, op, r["mae"], r["aurc"]))
             print(f"  seed{seed} {op:4s} mae={r['mae']:.4f} "
                   f"aurc={r['aurc']:.4f} params={r['params']}")
 
@@ -48,6 +50,12 @@ def run(shell="iridium", seeds=(0, 1, 2), n_train=8, n_eval=6,
             aurc = np.array(agg[op]["aurc"])
             wri.writerow([op, mae.mean(), mae.std(), aurc.mean(), aurc.std(),
                           agg[op]["params"]])
+    # per-seed dump (single source of truth for the per-seed table)
+    perseed_out = out.replace("exp_b_operators.csv", "exp_b_perseed.csv")
+    with open(perseed_out, "w", newline="") as f:
+        wri = csv.writer(f)
+        wri.writerow(["seed", "op", "mae", "aurc"])
+        wri.writerows(perseed)
     print(f"[Exp B] shell={shell} seeds={list(seeds)} wrote {out}")
     for op in ops:
         mae = np.array(agg[op]["mae"])
