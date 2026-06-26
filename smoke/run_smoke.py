@@ -16,6 +16,7 @@ import exp_a_propagation as A
 import exp_b_operators as B
 import exp_b2_qw_variants as B2
 import exp_c_pitfalls as C
+import exp_d_quantum_noise as D
 
 # Smoke outputs go to results/smoke/ so they NEVER overwrite the canonical
 # results/*.csv that the paper and figures are built from.
@@ -49,6 +50,11 @@ def main():
     print("=" * 60)
     print("SMOKE: Exp C2 (seed pitfall, tiny)")
     C.run_c2(seeds=range(3), epochs=40, out=_o("exp_c2_seeds.csv"))
+
+    print("=" * 60)
+    print("SMOKE: Exp D (NISQ noise on quantum walk)")
+    D.run(n_nodes=8, t=2.0, noise_levels=[0.0, 0.1, 0.3],
+          out=_o("exp_d_quantum_noise.csv"))
 
     print("=" * 60)
     print("SMOKE OK (outputs in results/smoke/, canonical CSVs untouched)")

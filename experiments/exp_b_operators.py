@@ -14,14 +14,16 @@ import csv
 import os
 import numpy as np
 
-from src.constellation import iridium_like, starlink_mini
+from src.constellation import iridium_like, starlink_mini, starlink_shell1
 from src.data import make_leo_samples
 from src.train import train_eval
+
+_SHELLS = {"iridium": iridium_like, "mini": starlink_mini, "shell1": starlink_shell1}
 
 
 def run(shell="iridium", seeds=(0, 1, 2), n_train=8, n_eval=6,
         hidden=16, n_layers=3, epochs=200, out=None):
-    walker = iridium_like() if shell == "iridium" else starlink_mini()
+    walker = _SHELLS.get(shell, starlink_mini)()
     ops = ["gcn", "heat", "qw"]
     agg = {op: {"mae": [], "aurc": [], "params": None} for op in ops}
     perseed = []   # (seed, op, mae, aurc) rows, backs the per-seed table
@@ -51,7 +53,10 @@ def run(shell="iridium", seeds=(0, 1, 2), n_train=8, n_eval=6,
             wri.writerow([op, mae.mean(), mae.std(), aurc.mean(), aurc.std(),
                           agg[op]["params"]])
     # per-seed dump (single source of truth for the per-seed table)
-    perseed_out = out.replace("exp_b_operators.csv", "exp_b_perseed.csv")
+    if os.path.basename(out) == "exp_b_operators.csv":
+        perseed_out = os.path.join(os.path.dirname(out), "exp_b_perseed.csv")
+    else:
+        perseed_out = out[:-4] + "_perseed.csv"
     with open(perseed_out, "w", newline="") as f:
         wri = csv.writer(f)
         wri.writerow(["seed", "op", "mae", "aurc"])

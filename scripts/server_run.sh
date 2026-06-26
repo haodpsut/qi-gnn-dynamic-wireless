@@ -37,4 +37,14 @@ python -c "import sys; sys.path[:0]=['experiments','.']; import exp_c_pitfalls a
 C.run_c2(seeds=range(8), epochs=400)" \
   2>&1 | tee -a "$LOG"
 
+echo "== Exp D: NISQ noise erodes the ballistic walk (PennyLane) ==" | tee -a "$LOG"
+python experiments/exp_d_quantum_noise.py 2>&1 | tee -a "$LOG"
+
+echo "== Exp E: scale-up to Starlink shell-1 (1584 satellites) ==" | tee -a "$LOG"
+# heavier (1584x1584 eig + dense matmuls); modest config keeps wall-clock reasonable
+python -c "import sys; sys.path[:0]=['experiments','.']; import exp_b_operators as B; \
+B.run(shell='shell1', seeds=(0,1,2), n_train=6, n_eval=4, hidden=32, n_layers=4, epochs=200, \
+out='results/exp_e_shell1.csv')" \
+  2>&1 | tee -a "$LOG"
+
 echo "DONE -> $LOG"

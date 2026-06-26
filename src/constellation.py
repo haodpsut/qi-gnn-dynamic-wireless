@@ -111,3 +111,8 @@ def iridium_like():
 def starlink_mini():
     # 264 sats, 24 x 11, 53 deg, 550 km  (main case-study scale)
     return Walker(264, 24, 1, 53.0, 550.0)
+
+
+def starlink_shell1():
+    # Starlink shell 1: 1584 sats, 72 planes x 22, 53 deg, 550 km (scale stress test)
+    return Walker(1584, 72, 1, 53.0, 550.0)
