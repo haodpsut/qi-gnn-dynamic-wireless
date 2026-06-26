@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import exp_a_propagation as A
 import exp_b_operators as B
+import exp_b2_qw_variants as B2
 import exp_c_pitfalls as C
 
 
@@ -27,6 +28,11 @@ def main():
     print("SMOKE: Exp B (operator comparison, tiny)")
     B.run(shell="iridium", seeds=(0, 1), n_train=4, n_eval=3,
           hidden=8, n_layers=2, epochs=40)
+
+    print("=" * 60)
+    print("SMOKE: Exp B2 (quantum-walk variant probe, tiny)")
+    B2.run(shell="iridium", seeds=(0, 1), n_train=4, n_eval=3,
+           hidden=8, n_layers=2, epochs=40, n_times=3)
 
     print("=" * 60)
     print("SMOKE: Exp C1 (normalization pitfall, tiny)")

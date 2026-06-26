@@ -53,6 +53,18 @@ class Sample:
         w, U = eig_sym(laplacian(A, normalized=False))
         self.w = w.astype(np.float64)
         self.U = U.astype(np.float64)
+        # variant eigenbases (lazily filled by ensure_variant_eigs for Exp B2)
+        self.w_A = self.U_A = None      # adjacency A
+        self.w_S = self.U_S = None      # symmetric-normalized Laplacian
+
+    def ensure_variant_eigs(self):
+        """Eigendecompose A and L_sym for the quantum-walk-variant probe."""
+        if self.w_A is None:
+            wa, Ua = eig_sym(self.A.astype(float))
+            self.w_A, self.U_A = wa.astype(np.float64), Ua.astype(np.float64)
+        if self.w_S is None:
+            ws, Us = eig_sym(laplacian(self.A, normalized=True))
+            self.w_S, self.U_S = ws.astype(np.float64), Us.astype(np.float64)
 
 
 def make_leo_samples(walker, n_samples, slot_s=30.0, seam=False,

@@ -22,6 +22,11 @@ python -c "import sys; sys.path[:0]=['experiments','.']; import exp_b_operators 
 B.run(shell='mini', seeds=(0,1,2,3,4), n_train=12, n_eval=8, hidden=32, n_layers=4, epochs=400)" \
   2>&1 | tee -a "$LOG"
 
+echo "== Exp B2: quantum-walk variant probe ==" | tee -a "$LOG"
+python -c "import sys; sys.path[:0]=['experiments','.']; import exp_b2_qw_variants as B2; \
+B2.run(shell='mini', seeds=(0,1,2,3,4), n_train=12, n_eval=8, hidden=32, n_layers=4, epochs=400, n_times=3)" \
+  2>&1 | tee -a "$LOG"
+
 echo "== Exp C1: normalization pitfall ==" | tee -a "$LOG"
 python -c "import sys; sys.path[:0]=['experiments','.']; import exp_c_pitfalls as C; \
 C.run_c1(sizes=((4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10)), epochs=300)" \

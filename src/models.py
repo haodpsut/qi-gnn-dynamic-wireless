@@ -39,24 +39,34 @@ def build_propagator(op_kind, w, U, t, gcn_phi):
 class PropGNN(nn.Module):
     """K-layer message passing with a pluggable propagation operator."""
 
-    def __init__(self, in_dim=2, hidden=16, out_dim=1, n_layers=2, op_kind="gcn"):
+    def __init__(self, in_dim=2, hidden=16, out_dim=1, n_layers=2, op_kind="gcn",
+                 n_times=1):
         super().__init__()
         self.op_kind = op_kind
         self.n_layers = n_layers
+        self.n_times = n_times              # >1 = multi-time readout (qw variant)
         dims = [in_dim] + [hidden] * (n_layers - 1) + [hidden]
+        # with multi-time, each layer concatenates n_times propagations
         self.lins = nn.ModuleList(
-            [nn.Linear(dims[l], dims[l + 1]) for l in range(n_layers)]
+            [nn.Linear(dims[l] * n_times, dims[l + 1]) for l in range(n_layers)]
         )
         self.readout = nn.Linear(hidden, out_dim)
-        # one learnable propagation time per layer (heat / qw only)
-        self.t = nn.Parameter(torch.ones(n_layers) * 0.5)
+        # learnable propagation time(s) per layer (heat / qw only)
+        self.t = nn.Parameter(torch.ones(n_layers, n_times) * 0.5)
         self.act = nn.ReLU()
 
     def forward(self, X, w, U, gcn_phi):
         H = X
         for l in range(self.n_layers):
-            Phi = build_propagator(self.op_kind, w, U, self.t[l], gcn_phi)
-            H = self.act(self.lins[l](Phi @ H))
+            if self.n_times == 1:
+                Phi = build_propagator(self.op_kind, w, U, self.t[l, 0], gcn_phi)
+                Z = Phi @ H
+            else:
+                # concatenate propagations at several learnable times
+                parts = [build_propagator(self.op_kind, w, U, self.t[l, m], gcn_phi) @ H
+                         for m in range(self.n_times)]
+                Z = torch.cat(parts, dim=-1)
+            H = self.act(self.lins[l](Z))
         return self.readout(H).squeeze(-1)
 
 
