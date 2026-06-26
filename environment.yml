@@ -1,0 +1,14 @@
+name: qignn
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - matplotlib
+  - pip
+  - pytorch
+  - cpuonly        # remove this line and add pytorch-cuda for a GPU box
+  - pip:
+      - pennylane   # optional, only for Exp D (quantum-hardware noise demo)
