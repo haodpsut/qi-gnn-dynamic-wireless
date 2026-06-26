@@ -41,9 +41,10 @@ echo "== Exp D: NISQ noise erodes the ballistic walk (PennyLane) ==" | tee -a "$
 python experiments/exp_d_quantum_noise.py 2>&1 | tee -a "$LOG"
 
 echo "== Exp E: scale-up to Starlink shell-1 (1584 satellites) ==" | tee -a "$LOG"
-# heavier (1584x1584 eig + dense matmuls); modest config keeps wall-clock reasonable
+# heavy (1584x1584 eig + dense matmuls); FULL budget to match the 264-sat config so the
+# scale comparison is fair (3 seeds keeps wall-clock tractable)
 python -c "import sys; sys.path[:0]=['experiments','.']; import exp_b_operators as B; \
-B.run(shell='shell1', seeds=(0,1,2), n_train=6, n_eval=4, hidden=32, n_layers=4, epochs=200, \
+B.run(shell='shell1', seeds=(0,1,2), n_train=12, n_eval=8, hidden=32, n_layers=4, epochs=400, \
 out='results/exp_e_shell1.csv')" \
   2>&1 | tee -a "$LOG"
 
