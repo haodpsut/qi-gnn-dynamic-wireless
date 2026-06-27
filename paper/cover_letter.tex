@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{2em}
+
+\begin{document}
+\thispagestyle{empty}
+
+\noindent\textbf{Phuc Hao Do}\\
+Faculty of Information Technology\\
+Danang Architecture University, Danang, Vietnam\\
+\href{mailto:haodp@dau.edu.vn}{haodp@dau.edu.vn}
+
+\vspace{1.2em}
+\noindent June 27, 2026
+
+\vspace{1.2em}
+\noindent\textbf{To:} The Guest Editors,\\
+IEEE Transactions on Network Science and Engineering,\\
+Special Issue on \emph{Tutorials and Surveys on AI and Quantum-enabled Learning for
+Future Wireless Networks}\\
+(Prof. Trung Q. Duong, Prof. Ruidong Li, Dr. Bhaskara Narottama, Prof. George K.
+Karagiannidis)
+
+\vspace{1.0em}
+\noindent\textbf{Re:} Submission of the manuscript ``\emph{Quantum and Quantum-Inspired
+Graph Neural Networks for Dynamic Wireless Network Topologies: A Tutorial and Survey with
+a Reproducible LEO Case Study}''
+
+\vspace{1.2em}
+\noindent Dear Guest Editors,
+
+I am pleased to submit the above manuscript for consideration in the Special Issue on
+\emph{Tutorials and Surveys on AI and Quantum-enabled Learning for Future Wireless
+Networks}. The paper is prepared as a combined \textbf{tutorial and survey}, the
+contribution type the call solicits, and it speaks directly to two of the listed topics:
+\emph{quantum graph neural networks} and \emph{data-driven quantum algorithms for dynamic
+wireless network topologies}.
+
+\textbf{What the paper offers.} The manuscript is organized around a single unifying idea:
+classical graph neural networks, graph diffusion, and continuous-time quantum walks are
+the same object, a propagation operator on the graph Laplacian, so the only thing that
+changes between them is the spreading physics (diffusive for the heat kernel, ballistic
+for the quantum walk). From this view the paper (i) surveys the classical, quantum,
+quantum-inspired, and dynamic-graph branches and their use in wireless and
+non-terrestrial networks, organized by operator rather than by author; (ii) teaches, with
+pseudocode and a worked example, how to build a param-matched quantum-inspired GNN layer
+that runs on classical hardware today; and (iii) demonstrates the framework on a fully
+reproducible low Earth orbit (LEO) case study.
+
+\textbf{The central finding is honest and, we believe, timely for this Special Issue.} On
+a node-potential task over a dynamic LEO graph, global propagation beats local message
+passing by a wide margin at every scale, and the quantum-inspired and classical operators
+trade places as the constellation grows: the quantum-inspired walk loses at 66
+satellites, ties at 264, and becomes the best operator at 1584 satellites, exactly the
+diameter-driven trend its ballistic spreading predicts. We report this conditional,
+scale-dependent quantum advantage with its caveats rather than as a blanket claim, and we
+add a NISQ-noise study (PennyLane) showing how device noise erodes the mechanism. A
+dedicated section on evaluation pitfalls, scale-coupled normalization and single-seed
+reporting, distills a reusable checklist; we believe this methodological contribution is
+useful to the community independently of the case study.
+
+\textbf{Reproducibility.} Every figure and number in the paper is regenerated from seeded
+runs by the companion code at
+\href{https://github.com/haodpsut/qi-gnn-dynamic-wireless}{github.com/haodpsut/qi-gnn-dynamic-wireless}.
+All experiments are param-matched and multi-seed.
+
+\textbf{Originality and disclosure.} This manuscript is original, has not been published
+before, and is not under consideration elsewhere. For full transparency: I have a
+separate, accepted survey on AI and quantum technologies in non-terrestrial networks (in
+the \emph{Journal of Communications and Information Networks}). The present paper is
+distinct in scope and contribution; it is a focused tutorial on graph-learning operators
+with an original reproducible case study, not a broad survey, and it does not reuse that
+material. The LEO topology generator reuses my open-source simulator, while the
+node-potential task and all results here are new.
+
+I confirm there are no conflicts of interest with the Guest Editors that would prevent a
+fair review, and I am happy to suggest or exclude reviewers if helpful.
+
+Thank you for your time and consideration.
+
+\vspace{1.4em}
+\noindent Sincerely,
+
+\vspace{0.4em}
+\noindent\textbf{Phuc Hao Do}\\
+Danang Architecture University
+
+\end{document}
