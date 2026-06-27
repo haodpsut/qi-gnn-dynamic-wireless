@@ -1,0 +1,41 @@
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=14mm]
+% Stage 1: LEO constellation (Earth + satellites on two orbits)
+\node[circle, draw=steel, fill=steel!25, minimum size=11mm] (earth) at (0,0) {};
+\draw[gray!55] (earth.center) ellipse (11mm and 4mm);
+\draw[gray!55, rotate around={55:(earth.center)}] (earth.center) ellipse (11mm and 4mm);
+\foreach \a in {15,150,255}{\fill[amber!80!black] ($(earth.center)+(\a:10.5mm)$) circle (1pt);}
+\node[font=\footnotesize\bfseries, text=ink, align=center, below=7mm of earth] (l1)
+  {LEO constellation\\(ephemeris-known)};
+
+% Stage 2: time-varying graph
+\node[box, minimum width=20mm, minimum height=15mm, right=18mm of earth] (g) {};
+\foreach \x/\y in {-5/3,1/5,6/2,-4/-4,3/-5,6/-1}{%
+  \fill[navy] ($(g.center)+(\x mm,\y mm)$) circle (1pt);}
+\draw[navy!70] ($(g.center)+(-5mm,3mm)$)--($(g.center)+(1mm,5mm)$)--($(g.center)+(6mm,2mm)$);
+\draw[navy!70] ($(g.center)+(-4mm,-4mm)$)--($(g.center)+(3mm,-5mm)$)--($(g.center)+(6mm,-1mm)$);
+\draw[navy!70] ($(g.center)+(1mm,5mm)$)--($(g.center)+(3mm,-5mm)$);
+\node[font=\footnotesize\bfseries, text=ink, align=center, below=2mm of g] (l2)
+  {time-varying graph\\$G_t=(V,E_t)$};
+
+% Stage 3: operator
+\node[hot, align=center, minimum width=26mm, minimum height=15mm, right=20mm of g] (op)
+  {propagation operator\\$\Prop(\Lap)$:\\GCN / heat / quantum walk};
+
+% Stage 4: task
+\node[box, align=center, minimum width=22mm, minimum height=15mm, right=18mm of op] (task)
+  {node-level task\\potential / routing\\field $\hat{\mathbf{y}}$};
+
+\draw[flow] (earth.east) -- (g.west);
+\draw[flow] (g.east) -- (op.west);
+\draw[flow] (op.east) -- (task.west);
+\end{tikzpicture}}
+\caption{System overview. A LEO constellation with known future geometry induces a
+time-varying graph $G_t$; a propagation operator $\Prop(\Lap)$, classical or quantum,
+turns node features into a node-level field (here a potential / routing field). This
+tutorial studies the choice of $\Prop$ as the lever: the operator is the only thing that
+changes between classical, diffusive, and quantum, ballistic, propagation.}
+\label{fig:overview}
+\end{figure*}

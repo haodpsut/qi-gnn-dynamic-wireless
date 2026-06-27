@@ -1,6 +1,11 @@
 \section{Dynamic Wireless Topologies as Graphs}
 \label{sec:background}
 
+Fig.~\ref{fig:overview} sketches the pipeline this tutorial studies: a constellation
+induces a time-varying graph, a propagation operator turns node features into a
+node-level field, and the operator is the lever we vary.
+\input{figs/fig_overview}
+
 \subsection{The time-varying graph model}
 We model a network at slot $t$ as a graph $G_t=(V,E_t)$ with $|V|=N$ nodes and a
 time-varying edge set $E_t$. Let $\Adj_t\in\{0,1\}^{N\times N}$ be the adjacency

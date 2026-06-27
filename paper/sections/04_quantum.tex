@@ -46,6 +46,36 @@ Interference changes the spreading law. Whereas the heat kernel spreads diffusiv
 \label{eq:ballistic}
 \end{equation}
 The probability mass reaches distant nodes quadratically faster in propagation time.
+Proposition~\ref{prop:spreading} makes the two laws exact on the canonical line graph.
+
+\begin{proposition}[Diffusive vs ballistic spreading]
+\label{prop:spreading}
+Consider the infinite path (line) graph with unit edge weights and combinatorial
+Laplacian $\Lap$, with an impulse released at the origin. Let $M_2^{\mathrm{heat}}(t)$ and
+$M_2^{\mathrm{qw}}(t)$ be the second moments about the origin of the heat-kernel
+distribution $[e^{-t\Lap}]_{\cdot,0}$ and of the quantum-walk distribution
+$\big|[e^{-it\Lap}]_{\cdot,0}\big|^2$. Then
+\begin{equation}
+M_2^{\mathrm{heat}}(t)=2t, \qquad M_2^{\mathrm{qw}}(t)=2t^2 .
+\end{equation}
+The heat kernel therefore spreads diffusively (standard deviation $\propto\sqrt{t}$) and
+the quantum walk ballistically (standard deviation $\propto t$).
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+Translation invariance lets us diagonalize $\Lap$ by the Fourier transform: the
+eigenfunctions are $e^{i\theta n}$ with eigenvalues $\lambda(\theta)=2(1-\cos\theta)$,
+$\theta\in[-\pi,\pi]$, so $\lambda'(\theta)=2\sin\theta$ and $\lambda''(0)=2$. The heat
+distribution has characteristic function $\hat p(\theta)=e^{-t\lambda(\theta)}$, and its
+second moment is $M_2^{\mathrm{heat}}=-\hat p''(0)=-\big(t^2\lambda'(0)^2-t\lambda''(0)\big)=2t$.
+For the quantum walk the amplitude has symbol $\hat\psi(\theta)=e^{-it\lambda(\theta)}$, and
+by Parseval applied to $\partial_\theta\hat\psi$,
+$M_2^{\mathrm{qw}}=\tfrac{1}{2\pi}\!\int_{-\pi}^{\pi}\!|\partial_\theta\hat\psi|^2\,d\theta
+=\tfrac{1}{2\pi}\!\int_{-\pi}^{\pi}\! t^2\lambda'(\theta)^2\,d\theta
+=\tfrac{t^2}{2\pi}\!\int_{-\pi}^{\pi}\!4\sin^2\theta\,d\theta=2t^2$.
+On a finite path the identities hold until the wavefront reaches the boundary; Exp~A
+confirms the slopes $1.00$ and $2.00$ numerically (Fig.~\ref{fig:expA}).
+\end{proof}
 
 \paragraph*{Worked example, continued} On the same $81$-node path and impulse, the
 quantum-walk probability $|e^{-it\Lap}|^2$ has variance exactly $2t^2$: at $t=1$ it is
