@@ -1,0 +1,75 @@
+\section{Dynamic Wireless Topologies as Graphs}
+\label{sec:background}
+
+\subsection{The time-varying graph model}
+We model a network at slot $t$ as a graph $G_t=(V,E_t)$ with $|V|=N$ nodes and a
+time-varying edge set $E_t$. Let $\Adj_t\in\{0,1\}^{N\times N}$ be the adjacency
+matrix (or a weighted variant carrying link delay or capacity), $\Deg_t$ the diagonal
+degree matrix, and
+\begin{equation}
+\Lap_t=\Deg_t-\Adj_t, \qquad
+\Lap_t^{\mathrm{sym}}=\Id-\Deg_t^{-1/2}\Adj_t\Deg_t^{-1/2}
+\end{equation}
+the combinatorial and symmetric-normalized Laplacians. Each $\Lap_t$ is symmetric
+positive semidefinite, with eigendecomposition $\Lap_t=\Eig_t\,\mathrm{diag}(\lambda)\,\Eig_t^{\top}$,
+$\lambda_k\ge 0$. Node attributes are collected in $\mathbf{X}\in\mathbb{R}^{N\times d}$.
+Table~\ref{tab:notation} summarizes the notation used throughout.
+
+A defining feature of LEO and other non-terrestrial
+networks~\cite{kodheli2021ntn,handley2018delay} is that the future
+topology is \emph{known}: orbits are deterministic over the analysis horizon, so
+$\Adj_{t+1},\Adj_{t+2},\dots$ can be computed in advance from ephemeris. This is
+unusual among dynamic graphs and is worth keeping in mind, although the case study
+in this tutorial uses only a single snapshot per sample to keep the exposition focused
+on the operator question.
+
+\subsection{Learning tasks on $G_t$}
+Many network-management problems become node-level or edge-level learning tasks once
+the topology is a graph:
+\begin{itemize}
+\item \emph{Potential and reachability fields}: predict, for every node, a scalar
+that encodes distance or reachability to a target. This underlies routing and
+forwarding and is the task we use in the case study.
+\item \emph{Traffic and congestion}: predict link load or a congestion price for
+resource-aware forwarding.
+\item \emph{Anomaly and security}: classify nodes or subgraphs as anomalous under
+shifting topology.
+\end{itemize}
+What these share is a need to move information across the graph. How far and how fast
+that information should move is exactly the property that distinguishes propagation
+operators, which is why the choice of operator, not the choice of task, is the right
+lever to study first.
+
+\subsection{What makes these graphs hard}
+Three features set dynamic wireless graphs apart from the static citation and molecule
+graphs on which GNNs are usually taught. First, \emph{churn}: edges appear and disappear
+between slots as satellites cross polar regions or seams, so an operator that overfits a
+single topology generalizes poorly. Second, \emph{large diameter}: a constellation graph
+is locally grid-like and globally sparse, so geodesics are long and a fixed-hop operator
+is starved of range exactly where it is needed. Third, \emph{scale with structure}:
+realistic shells have thousands of nodes but a regular plane-and-seam structure, which
+both stresses computation and offers regularity an inductive operator can exploit. The
+node-potential task we study isolates the second feature, range, because it is the one
+the propagation operator most directly controls; the others motivate the roadmap in
+Section~\ref{sec:roadmap}.
+
+\begin{table}[t]
+\centering
+\caption{Notation used throughout the tutorial.}
+\label{tab:notation}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$G_t=(V,E_t)$ & graph at slot $t$, $N=|V|$ nodes \\
+$\Adj_t,\Deg_t,\Lap_t$ & adjacency, degree, Laplacian \\
+$\Eig,\lambda_k$ & Laplacian eigenvectors and eigenvalues \\
+$\mathbf{X},\Feat^{(\ell)}$ & input features, layer-$\ell$ embeddings \\
+$\Prop(\Lap)$ & propagation operator (the unifying object) \\
+$t_\ell$ & learnable propagation time at layer $\ell$ \\
+$\Wt^{(\ell)}$ & learnable layer weights \\
+$\mathrm{ecc}(v),\,\mathrm{diam}(G)$ & eccentricity of $v$, graph diameter \\
+\bottomrule
+\end{tabular}
+\end{table}

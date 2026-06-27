@@ -1,0 +1,34 @@
+\section{When to Reach for What}
+\label{sec:decision}
+
+The case study and the operator view together yield a practical decision guide,
+Table~\ref{tab:decision}. The first question is range, not quantumness: if the task
+needs information to travel farther than a few hops on a large, time-varying graph, a
+global operator is warranted and a fixed-depth GCN is the wrong tool. Among global
+operators, the classical heat kernel is a strong, cheap default. The quantum-inspired
+walk earns its place as the graph grows: ballistic spreading helps most where geodesics
+are long, so the larger the diameter the more it matters. In our study the
+quantum-inspired walk trailed heat at $66$ satellites, tied at $264$, and was the best
+operator at $1584$ (Section~\ref{sec:expe}); a base-matrix sweep (adjacency, Laplacian,
+normalized Laplacian) further helps on the far-node metric. The practical rule is to
+prefer the classical heat kernel at small-to-medium scale and to reach for the
+quantum-inspired walk on large, long-range graphs, adopting it only when a multi-seed
+comparison confirms a real, not within-noise, gain. True quantum hardware remains a research path rather than
+a deployment choice today, for the reasons in Section~\ref{sec:roadmap}.
+
+\begin{table}[t]
+\centering
+\caption{Operator decision guide. Evidence level reflects this tutorial's study.}
+\label{tab:decision}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}p{0.30\columnwidth}p{0.36\columnwidth}p{0.20\columnwidth}@{}}
+\toprule
+Task regime & Recommended operator & Evidence \\
+\midrule
+Short-range, $\le K$ hops & Local GCN ($K$ layers) & strong \\
+Long-range on large dynamic graph & Classical global (heat $e^{-t\Lap}$) & strong \\
+Large, long-range graph (big diameter) & Quantum-inspired walk $|e^{-it\Lap}|^2$ (sweep the base matrix) & best operator at $1584$ sats \\
+Exponential feature map needed & True QGNN (research, NISQ-limited) & open \\
+\bottomrule
+\end{tabular}
+\end{table}

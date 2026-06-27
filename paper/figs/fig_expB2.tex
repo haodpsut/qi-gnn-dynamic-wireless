@@ -1,0 +1,38 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.6cm, height=5.7cm,
+  ybar, bar width=7pt,
+  symbolic x coords={heat, qw-L, qw-A, qw-Lsym, qw-multi},
+  xtick=data, x tick label style={font=\scriptsize, rotate=18, anchor=east},
+  ymin=0.05, ymax=0.099,
+  ylabel={error (lower is better)},
+  legend cell align=left,
+  legend style={font=\scriptsize, at={(0.02,1.02)}, anchor=south west,
+                legend columns=2, fill=white, draw=gray!40},
+  ymajorgrids, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  axis line style={gray!50},
+  enlarge x limits=0.13,
+]
+\addplot[draw=steel!80!black, fill=steel!35] coordinates {
+  (heat,0.069) (qw-L,0.071) (qw-A,0.066) (qw-Lsym,0.071) (qw-multi,0.069)};
+\addlegendentry{MAE}
+\addplot[draw=amber!80!black, fill=palegold] coordinates {
+  (heat,0.085) (qw-L,0.077) (qw-A,0.075) (qw-Lsym,0.085) (qw-multi,0.082)};
+\addlegendentry{far-node AURC}
+% highlight the best variant
+\node[star, star points=5, star point ratio=2.3, fill=amber, draw=amber!70!black,
+      inner sep=1.3pt] at (axis cs:qw-A,0.0905) {};
+\node[font=\scriptsize\bfseries, text=amber!75!black] at (axis cs:qw-A,0.087) {best};
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~B2, quantum-walk variant probe ($264$ satellites, $5$ seeds). The base
+matrix of the walk matters: the adjacency walk (qw-A, starred) is the best operator on
+both metrics at matched parameters, edging the classical heat kernel on the far-node
+AURC, while the Laplacian (qw-L) and normalized-Laplacian (qw-Lsym) walks tie heat and
+the higher-capacity multi-time variant does not improve on qw-A.}
+\label{fig:expB2}
+\end{figure}

@@ -1,0 +1,36 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.4cm, height=5.7cm,
+  xlabel={graph diameter}, ylabel={apparent global-vs-local gap},
+  xmin=5, xmax=19, ymin=-0.06, ymax=0.7,
+  legend pos=north west, legend cell align=left,
+  grid=major, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  legend style={font=\footnotesize, fill=white, fill opacity=0.85, draw=gray!40},
+  axis line style={gray!50},
+]
+% scale-free (eccentricity) normalization: flat
+\addplot[steel, very thick, mark=*, mark size=1.4pt, name path=sf] coordinates {
+  (6,-0.020)(8,-0.023)(10,0.018)(12,0.031)(14,0.044)(16,0.050)(18,0.053)};
+\addlegendentry{scale-free per source (fix)}
+% raw normalization: spurious runaway
+\addplot[amber!80!black, very thick, mark=square*, mark size=1.4pt, name path=raw]
+  coordinates {
+  (6,-0.024)(8,0.019)(10,0.161)(12,0.278)(14,0.483)(16,0.589)(18,0.632)};
+\addlegendentry{raw units (pitfall)}
+% shade the spurious gap between the two
+\addplot[amber!30, opacity=0.45] fill between[of=raw and sf];
+\node[font=\footnotesize\bfseries, text=amber!70!black, align=center]
+  at (axis cs:14.2,0.30) {scale\\artifact};
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~C1, the normalization pitfall. Pooling errors in raw hop units across
+graphs of growing diameter manufactures a gap that explodes to $\cRawMax$ (slope
+$\cRawSlope$). A scale-free per-source normalization leaves a small, genuine gap
+(slope $\cSFSlope$, about $\cSlopeRatio\times$ flatter): the real long-range deficiency
+of a local operator, without the scale artifact (shaded).}
+\label{fig:pitfall}
+\end{figure}

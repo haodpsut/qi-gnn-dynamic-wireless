@@ -1,0 +1,79 @@
+\section{How to Evaluate Honestly}
+\label{sec:pitfalls}
+
+The hardest part of quantum-enabled learning is not building the model but trusting
+the comparison. The wider machine-learning community has learned this lesson the hard
+way, in reinforcement learning where seeds and implementation details dominate
+reported gains~\cite{henderson2018matters}, in generative modeling where a fair
+large-scale comparison erased claimed advantages~\cite{lucic2018gans}, and in
+benchmarking practice more broadly~\cite{pineau2021reproducibility,dehghani2021lottery}.
+This section reproduces two pitfalls that manufacture false advantages, shows how to
+remove them, and distills a checklist. These are not hypothetical: each one produced a
+misleading signal in our own early experiments before we corrected it.
+
+\subsection{Pitfall 1: scale-coupled normalization}
+A node-potential target has units of hops, and those units grow with the graph. If we
+normalize the target by a global graph constant such as the diameter,
+$y_i=d_G(i,v_d)/\mathrm{diam}(G)$, and then pool errors across graphs of different
+size, large graphs dominate the average and the apparent global-versus-local gap
+appears to explode with diameter. Fig.~\ref{fig:pitfall} shows the effect: under raw
+hop units the gap grows with a slope of $\cRawSlope$ per unit diameter and reaches
+$\cRawMax$ on the largest graph, whereas under a scale-free per-source normalization
+(by eccentricity) the same gap grows with a slope of only $\cSFSlope$, roughly
+$\cSlopeRatio\times$ flatter, and stays near $\cSFMax$.
+
+The honest reading separates two things. A genuine, modest gap remains under the
+scale-free metric, because a fixed $K$-hop GCN really does fall behind as the diameter
+grows. What is spurious is the \emph{magnitude and steepness} of the trend under
+raw units, which is an artifact of letting the metric scale with the problem. The fix
+is to normalize per source to a scale-free quantity before pooling heterogeneous
+graphs, and to report a scale-free summary such as the AURC, in the spirit of
+standardized robustness protocols~\cite{hendrycks2019corruptions}.
+
+\input{figs/fig_pitfall}
+
+\subsection{Pitfall 2: single-seed reporting}
+Quantum-inspired models in our study are visibly noisier than their classical
+counterparts. On the $66$-satellite shell over eight seeds, the quantum-inspired walk
+ranges widely while the heat kernel is tight: $\cTwoQw\pm\cTwoQwStd$ versus
+$\cTwoHeat\pm\cTwoHeatStd$ (the local GCN sits at $\cTwoGcn\pm\cTwoGcnStd$). A single
+seed could therefore show the quantum-inspired operator beating, matching, or losing
+to the classical one, as Fig.~\ref{fig:seeds} makes visible. Reporting one run is not a
+small sin here; it can invert the conclusion. The remedy is to report mean and standard
+deviation over several seeds and to treat any ranking that lies inside the combined
+spread as a tie.
+
+\input{figs/fig_seeds}
+
+\subsection{Pitfall 3: survivorship in the denominator}
+A subtler trap appears whenever some instances can fail to produce a usable answer, for
+example a routing decoder that does not deliver every flow, or a method scored only where
+it converged. Averaging the error over the \emph{surviving} instances rewards a method
+that quietly drops its hardest cases: the harder the case it abandons, the better its
+conditional mean looks. The fix is to fix the denominator, every instance counts and a
+dropped case is scored at its true (failed) cost rather than omitted. The same logic
+applies to seeds and configurations: report all runs, not only the ones that trained
+cleanly.
+
+\subsection{Pitfall 4: the capacity confound in quantum comparisons}
+Quantum and classical models are easy to compare unfairly because the quantum knob often
+moves capacity at the same time. Adding qubits typically widens the classical pre- or
+post-processing as well, so a quantum advantage measured at matched qubit count can be a
+plain capacity advantage in disguise. The remedy is to match the resource that actually
+carries the capacity, the bottleneck width and total parameter count, not the qubit
+count. We apply this directly: the multi-time quantum-walk variant in
+Section~\ref{sec:casestudy} is given more parameters and is reported with its larger
+count, so the reader can see it does not buy an improvement despite the extra capacity.
+
+\subsection{A reusable checklist}
+\begin{enumerate}
+\item \textbf{Param-matched operators.} Vary only the propagation operator; hold depth,
+width, and weight shapes fixed.
+\item \textbf{Multiple seeds.} Report mean $\pm$ std; a ranking inside the std is not a
+result.
+\item \textbf{Scale-free metrics.} Normalize per source and report a scale-free summary
+(AURC); never pool raw units across sizes.
+\item \textbf{Honest denominators.} Count every instance; beware survivorship.
+\item \textbf{Design sweep before a verdict.} Probe the obvious variants so that ``it
+did not help'' is a statement about the mechanism, not one implementation.
+\end{enumerate}

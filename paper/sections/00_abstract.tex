@@ -1,0 +1,27 @@
+Future wireless networks, from low Earth orbit (LEO) mega-constellations to
+reconfigurable access fabrics, are time-varying graphs, and graph learning is
+becoming a central tool for managing them. At the same time, quantum and
+quantum-inspired learning is promoted as the next step for such networks, yet the
+literature rarely makes precise what a quantum model changes, or how to tell a real
+advantage from an artifact of evaluation. This tutorial offers a unifying answer.
+We show that classical graph neural networks, graph diffusion, and continuous-time
+quantum walks are the same object, a propagation operator on the graph Laplacian,
+so that the only difference between them is the spreading physics they encode:
+diffusive for the heat kernel, ballistic for the quantum walk. From this view we
+derive a param-matched, quantum-inspired graph neural network layer that runs on
+classical hardware today, and we teach how to evaluate it honestly. Using a fully
+reproducible case study on a dynamic LEO graph, we show that global propagation
+gives a large and robust gain over local message passing, while among global operators
+the quantum-inspired and classical kernels trade places \emph{with scale}: the
+quantum-inspired walk loses at $66$ satellites, ties at $264$, and becomes the best
+operator at $1584$, exactly the diameter-driven trend its ballistic spreading predicts.
+We report this honestly, with its three-seed caveat at the largest scale, rather than as
+a blanket quantum advantage. We survey the landscape of classical, quantum, and
+quantum-inspired graph learning and its use in wireless and non-terrestrial networks,
+organized by the propagation-operator view, and we add a NISQ-noise study showing how
+device noise erodes the ballistic mechanism. We then
+dissect two evaluation pitfalls that manufacture false advantages, a scale-coupled
+target normalization and single-seed reporting, and distill a reusable checklist.
+The goal is a reader who can build these models, place them in the propagation-operator
+landscape, and judge a quantum advantage on the evidence, neither overclaiming it nor
+missing the regime, here large scale, where it is real. All figures are reproducible from the companion code.

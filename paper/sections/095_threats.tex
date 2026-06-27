@@ -1,0 +1,33 @@
+\section{Threats to Validity}
+\label{sec:threats}
+
+In the spirit of the evaluation discipline this tutorial advocates, we state the limits
+of our own study so a reader does not over-read it.
+
+\textit{Scale and seeds.} We test three scales up to $1584$ satellites, the largest at
+which a full eigendecomposition of the Laplacian is affordable on a CPU; beyond it the
+spectral approximations of Section~\ref{sec:roadmap} would be required, and they introduce
+their own error. The headline scale trend, the quantum-inspired walk overtaking the
+classical kernel as diameter grows (Section~\ref{sec:expe}), rests on three seeds at the
+$1584$ scale because each run is eigendecomposition-heavy; it is monotone and
+theory-consistent across the three scales, but a larger seed count and still-larger
+constellations would harden it. The small- and medium-scale results use five and eight
+seeds and are correspondingly firmer.
+
+\textit{Task.} We study a single node-potential task chosen to isolate propagation.
+A different task, for example one with dense rather than single-seed supervision, could
+shift the balance between local and global operators, and a task whose payoff is not
+concentrated on far nodes would remove the regime in which ballistic spreading helps.
+The tutorial's claims are about operators on this task, not a universal ordering.
+
+\textit{Snapshot dynamics.} Each sample is a single graph snapshot. The predictably
+dynamic nature of LEO topologies, where future Laplacians are known, is not exploited;
+operators that propagate over a horizon of future graphs could change the picture and
+are left to future work.
+
+\textit{Quantum-inspired, not quantum.} Our quantum-inspired operator runs the
+quantum-walk kernel on classical hardware. It captures the ballistic-spreading
+mechanism but not the exponential-dimensional Hilbert-space feature map of a true
+QGNN, and it does not incur device noise. Conclusions about the quantum-inspired
+operator therefore bound, but do not settle, what a fault-tolerant quantum
+implementation would deliver.

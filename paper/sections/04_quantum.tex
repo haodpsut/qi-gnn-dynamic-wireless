@@ -1,0 +1,136 @@
+\section{Quantum and Quantum-Inspired Graph Models}
+\label{sec:quantum}
+
+\subsection{Continuous-time quantum walks}
+The continuous-time quantum walk
+(CTQW)~\cite{childs2004quantumwalk,venegas2012quantumwalks} is the quantum analogue of
+graph diffusion. Replacing the real, dissipative dynamics of the heat equation by the
+complex, unitary Schr\"odinger dynamics gives
+\begin{equation}
+\begin{aligned}
+i\,\dot{\boldsymbol{\psi}}=\Lap\boldsymbol{\psi}
+\;\;\Longrightarrow\;\;
+\boldsymbol{\psi}(t)&=e^{-it\Lap}\boldsymbol{\psi}(0),\\[2pt]
+e^{-it\Lap}&=\Eig\,\mathrm{diag}\!\big(e^{-it\lambda_k}\big)\,\Eig^{*}.
+\end{aligned}
+\label{eq:qwalk}
+\end{equation}
+The operator $e^{-it\Lap}$ is \emph{unitary} rather than stochastic, so it preserves
+the norm of the state and produces interference between paths.
+
+\textit{Interference, intuitively.} In classical diffusion, the contributions of two
+walks that reach the same node always add as nonnegative probabilities, so spreading is
+a smooth averaging that loses height as it widens. In a quantum walk the contributions
+are complex amplitudes that carry a phase, so two walks reaching the same node can add
+constructively or cancel. Constructive interference along the graph's geodesics is what
+lets probability mass race outward in a coherent front rather than diffuse, and
+destructive interference is what produces the oscillatory tails visible in
+Fig.~\ref{fig:operators}. The price of this coherence is fragility: any decoherence,
+whether physical device noise or, in the classical surrogate, an averaging that washes
+out phase, collapses the quantum walk back toward diffusion. This is the same fragility
+we see empirically as higher seed-to-seed variance in Section~\ref{sec:casestudy}.
+
+The physically meaningful quantity is the transition probability,
+\begin{equation}
+\Prop_{\mathrm{qw}}(t)_{ij}=\big|[e^{-it\Lap}]_{ij}\big|^2 ,
+\label{eq:qwprob}
+\end{equation}
+which is again real and row-stochastic, so it plugs into the same layer template as
+the heat kernel and stays param-matched with it.
+
+\subsection{The one difference that matters: ballistic spreading}
+Interference changes the spreading law. Whereas the heat kernel spreads diffusively,
+\eqref{eq:diffusive}, the quantum walk spreads \emph{ballistically}:
+\begin{equation}
+\Var\big[\,|e^{-it\Lap}|^2\big]\;\sim\;t^2 .
+\label{eq:ballistic}
+\end{equation}
+The probability mass reaches distant nodes quadratically faster in propagation time.
+
+\paragraph*{Worked example, continued} On the same $81$-node path and impulse, the
+quantum-walk probability $|e^{-it\Lap}|^2$ has variance exactly $2t^2$: at $t=1$ it is
+$2$ (the same as heat), at $t=4$ it is $32$ (four times heat), and at $t=8$ it is $128$
+(eight times heat). The two operators agree at $t=1$ and then separate, the quantum
+walk pulling ahead as $t^2$ versus $t$ (Fig.~\ref{fig:expA}). The distance frontier
+advances linearly in $t$ for the walk but only as $\sqrt{t}$ for diffusion. This is the
+entire mechanistic claim, and it is exact, not statistical; the open question is whether
+it survives into an end-task gain once weights and a readout are trained on top.
+
+Fig.~\ref{fig:operators} summarizes the whole framework: one Laplacian, three
+operators, two spreading laws. This is the single, measurable sense in which the
+quantum walk differs from classical diffusion, and Section~\ref{sec:casestudy}
+verifies \eqref{eq:diffusive} and \eqref{eq:ballistic} directly.
+
+\input{figs/fig_operators}
+
+\subsection{From walks to quantum graph neural networks}
+A full quantum graph neural network (QGNN) goes further than a walk. Node features
+are encoded into qubits, graph-structured entangling layers (a parameterized quantum
+circuit, PQC) play the role of message passing, and measurements form the readout. Four
+designs map out the space. \emph{Hamiltonian QGNNs}~\cite{verdon2019qgnn} build the layer
+from $e^{-iH_G t}$ for a graph Hamiltonian $H_G$ with trainable couplings, the closest
+relative of the quantum walk and the most direct realization of the operator view.
+\emph{Quantum-walk neural networks}~\cite{dernbach2019qwnn} make the walk's coin
+operator feature-dependent and learnable, so the propagation itself adapts to the data.
+\emph{Equivariant quantum graph circuits}~\cite{mernyei2022equivariant} enforce
+permutation equivariance in the circuit, the quantum analogue of the symmetry that makes
+classical GNNs generalize across node orderings. \emph{Quantum graph
+kernels}~\cite{henry2021quantumkernel} skip end-to-end learning and instead use a quantum
+evolution to define a similarity between graphs that a classical model then consumes,
+which is attractive because it sidesteps barren plateaus. The promise across all four is
+twofold: ballistic propagation as above, and an exponentially large Hilbert-space feature
+map~\cite{schuld2019featurespace,havlicek2019supervised} that a classical model cannot
+represent compactly.
+The cost is equally real, and we return to it in Section~\ref{sec:roadmap}: present
+quantum hardware is noisy, qubit-limited, and prone to barren plateaus that flatten
+the trainable landscape.
+
+\subsection{Encodings and expressivity (a primer)}
+A QGNN needs the graph and its features inside a quantum state, and the encoding choice
+drives both expressivity and trainability. Three families recur. \emph{Basis encoding}
+writes a length-$N$ signal into $\lceil\log_2 N\rceil$ qubits, the convention our
+noise study uses, so a walk on $N$ nodes costs only logarithmically many qubits but needs
+a unitary that realizes $e^{-it\Lap}$. \emph{Angle encoding} maps each feature to a
+rotation angle, one qubit per feature, and is the workhorse of variational quantum
+circuits~\cite{mitarai2018qcl,farhi2018classification}. \emph{Amplitude encoding} packs a
+normalized feature vector into the amplitudes of a state, exponentially compact but
+expensive to prepare. Table~\ref{tab:encodings} contrasts the three.
+
+\begin{table}[t]
+\centering
+\caption{Quantum feature encodings for a length-$N$ signal.}
+\label{tab:encodings}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabular}{@{}p{0.20\columnwidth}p{0.16\columnwidth}p{0.18\columnwidth}p{0.20\columnwidth}@{}}
+\toprule
+Encoding & Qubits & Prep cost & Typical use \\
+\midrule
+Basis & $\lceil\log_2 N\rceil$ & low (a basis state) & walks, search (our Exp~D) \\
+Angle & $O(N)$ & low (one rotation each) & variational circuits \\
+Amplitude & $\lceil\log_2 N\rceil$ & high (state prep) & compact feature maps \\
+\bottomrule
+\end{tabular}
+\end{table} The promise of these encodings is a feature map into a Hilbert
+space whose dimension grows exponentially with the qubit
+count~\cite{schuld2019featurespace,havlicek2019supervised,schuld2018book}, where a linear
+decision boundary can separate data that is hard to separate classically, and in
+restricted settings this yields provable data or sample
+advantages~\cite{huang2021power,liu2021rigorous,abbas2021power}. The catch is that the
+same expressivity makes the training landscape flat: random deep circuits exhibit barren
+plateaus where gradients vanish exponentially in the number of
+qubits~\cite{mcclean2018barren}, so expressivity and trainability trade off. For a
+practitioner the takeaway is that a quantum graph model is not automatically better; its
+advantage, if any, depends on a careful encoding and a problem whose structure the
+encoding actually exploits, which is precisely what a controlled, honest evaluation is
+meant to detect.
+
+\subsection{Quantum-inspired: the runnable middle ground}
+Between a classical GCN and a fault-tolerant QGNN sits the option we recommend for
+near-term practice. The quantum-walk kernel \eqref{eq:qwprob} is just a matrix
+function of the Laplacian; it can be computed on a classical processor with one
+eigendecomposition and used as a propagation layer. This \emph{quantum-inspired}
+GNN keeps the ballistic spreading mechanism while remaining trainable and
+reproducible today. It is the operator we build in the next section and evaluate in
+the case study. Whether its ballistic mechanism translates into an end-task advantage
+is precisely the empirical question we refuse to answer by assertion.

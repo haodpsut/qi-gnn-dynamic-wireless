@@ -1,0 +1,36 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.4cm, height=5.7cm,
+  xlabel={depolarizing noise $p$}, ylabel={value},
+  xmin=0, xmax=0.5, ymin=0, ymax=1.05,
+  legend pos=south west, legend cell align=left,
+  grid=major, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  legend style={font=\scriptsize, fill=white, fill opacity=0.9, draw=gray!40},
+  axis line style={gray!50},
+]
+% L1 distance to the uniform (decohered) state: coherence collapses with noise
+\addplot[amber!80!black, very thick, mark=square*, mark size=1.4pt] coordinates {
+  (0,0.569)(0.02,0.525)(0.05,0.463)(0.1,0.370)(0.2,0.242)(0.3,0.160)(0.5,0.067)};
+\addlegendentry{$L_1$ to uniform (coherence)}
+% spread variance normalized to its clean value, for shape comparison
+\addplot[steel, very thick, mark=*, mark size=1.4pt] coordinates {
+  (0,1.000)(0.02,0.986)(0.05,0.967)(0.1,0.936)(0.2,0.881)(0.3,0.835)(0.5,0.770)};
+\addlegendentry{spread var (normalized)}
+\draw[gray!60, dashed] (axis cs:0,0.741) -- (axis cs:0.5,0.741);
+\node[font=\scriptsize, text=gray!55, anchor=south west] at (axis cs:0.10,0.748)
+  {uniform-state variance};
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~D, NISQ noise erodes the ballistic mechanism. A continuous-time quantum
+walk on an $8$-node path is run as a PennyLane mixed-state circuit; per-qubit
+depolarizing noise of strength $p$ drives the coherent walk toward the uniform mixed
+state. The $L_1$ distance to uniform falls from $\dLoneClean$ at $p{=}0$ to $\dLoneNoisy$
+at $p{=}0.5$, and the spread variance decays from its clean value ($\dVarClean$) toward
+the featureless uniform-state level ($5.25$, dashed). This is the near-term caveat behind
+preferring the classical quantum-inspired surrogate.}
+\label{fig:expD}
+\end{figure}

@@ -1,0 +1,30 @@
+\begin{figure}[t]
+\centering
+\resizebox{0.85\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=5mm]
+% a small grid-like LEO graph
+\foreach \r in {0,1,2} {
+  \foreach \c in {0,1,2,3} {
+    \node[circle, draw=steel, fill=white, inner sep=1.4pt] (n\r\c) at (\c*1.1, \r*1.1) {};
+  }
+}
+% intra/inter links
+\foreach \r in {0,1,2} \foreach \c in {0,1,2} {
+  \pgfmathtruncatemacro\cn{\c+1}
+  \draw[steel] (n\r\c) -- (n\r\cn);
+}
+\foreach \r in {0,1} \foreach \c in {0,1,2,3} {
+  \pgfmathtruncatemacro\rn{\r+1}
+  \draw[steel] (n\r\c) -- (n\rn\c);
+}
+% destination seed
+\node[circle, draw=amber!80!black, fill=palegold, inner sep=1.8pt] at (n00) {};
+\node[font=\scriptsize, text=ink, below=1mm of n00] {$v_d$ (seed $=1$)};
+% target field shading hint
+\node[font=\scriptsize, text=ink, above=1mm of n23] {far node: $y=d_G(\cdot,v_d)$};
+\end{tikzpicture}}
+\caption{The node-potential task. A single seeded signal at the destination $v_d$ must
+be propagated across the dynamic LEO graph to recover the geodesic-distance field. The
+task rewards long-range operators and exposes a local GCN's $K$-hop horizon.}
+\label{fig:leotask}
+\end{figure}

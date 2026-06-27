@@ -1,0 +1,60 @@
+% Result macros -- single source of truth, kept in sync with results/*.csv.
+% All values verified against the regenerated canonical CSVs (server run, full
+% config: mini264, 5 seeds for B/B2, 8 seeds for C2; commit on 2026-06-26).
+
+% Exp B: operator comparison, mini264 (5 seeds)
+\newcommand{\bMAEgcn}{0.163}
+\newcommand{\bSTDgcn}{0.016}
+\newcommand{\bMAEheat}{0.069}
+\newcommand{\bSTDheat}{0.005}
+\newcommand{\bMAEqw}{0.071}
+\newcommand{\bSTDqw}{0.009}
+\newcommand{\bAURCgcn}{0.202}
+\newcommand{\bAURCheat}{0.085}
+\newcommand{\bAURCqw}{0.077}
+\newcommand{\globalgain}{2.3}      % global vs local MAE ratio (0.163/0.069=2.36, /0.071=2.30)
+
+% Exp C1: normalization pitfall (gap-vs-diameter slope), verified vs CSV
+\newcommand{\cRawSlope}{0.061}
+\newcommand{\cRawMax}{0.63}
+\newcommand{\cSFSlope}{0.007}
+\newcommand{\cSFMax}{0.05}
+\newcommand{\cSlopeRatio}{9}
+
+% Exp C2: single vs multi seed, iridium66 (8 seeds)
+\newcommand{\cTwoHeat}{0.064}
+\newcommand{\cTwoHeatStd}{0.005}
+\newcommand{\cTwoQw}{0.085}
+\newcommand{\cTwoQwStd}{0.012}
+\newcommand{\cTwoGcn}{0.102}
+\newcommand{\cTwoGcnStd}{0.010}
+
+% Exp D: NISQ depolarizing noise on CTQW (N=8 path, t=2.0), deterministic sim
+\newcommand{\dVarClean}{7.08}     % spread variance at p=0 (coherent ballistic)
+\newcommand{\dVarNoisy}{5.45}     % at p=0.5 (toward uniform = 5.25)
+\newcommand{\dLoneClean}{0.57}    % L1 distance to uniform at p=0
+\newcommand{\dLoneNoisy}{0.07}    % at p=0.5
+
+% Exp E: scale-up to Starlink shell-1 (1584 sats, 3 seeds, full budget), server 2026-06-27
+\newcommand{\eMAEgcn}{0.208}
+\newcommand{\eMAEheat}{0.168}
+\newcommand{\eMAEqw}{0.148}
+\newcommand{\eMAEqwStd}{0.005}
+\newcommand{\eMAEheatStd}{0.021}
+\newcommand{\eAURCgcn}{0.277}
+\newcommand{\eAURCheat}{0.231}
+\newcommand{\eAURCqw}{0.158}
+
+% Exp B2: quantum-walk variant probe, mini264 (5 seeds), server 2026-06-26
+\newcommand{\bbHeatMAE}{0.069}   \newcommand{\bbHeatAURC}{0.085}
+\newcommand{\bbLapMAE}{0.071}    \newcommand{\bbLapAURC}{0.077}
+\newcommand{\bbAdjMAE}{0.066}    \newcommand{\bbAdjAURC}{0.075}
+\newcommand{\bbAdjMAEstd}{0.006} \newcommand{\bbAdjAURCstd}{0.010}
+\newcommand{\bbNormMAE}{0.071}   \newcommand{\bbNormAURC}{0.085}
+\newcommand{\bbMultiMAE}{0.069}  \newcommand{\bbMultiAURC}{0.082}
+\newcommand{\bbVariantNote}{The design sweep reorders the global operators: the
+adjacency walk $e^{-it\Adj}$ is the best operator on both metrics at matched
+parameters and with the lowest variance, edging the classical heat kernel on the
+far-node AURC ($\bbAdjAURC$ versus $\bbHeatAURC$) and matching it within noise on
+overall MAE; the Laplacian and normalized-Laplacian walks tie heat, and the
+higher-capacity multi-time variant does not improve on the adjacency walk.}

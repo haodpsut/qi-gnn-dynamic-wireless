@@ -1,0 +1,35 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.4cm, height=5.7cm,
+  ybar, bar width=12pt,
+  symbolic x coords={GCN, Heat, QI},
+  xtick=data,
+  ymin=0, ymax=0.24,
+  ylabel={error (lower is better)},
+  legend pos=north east, legend cell align=left,
+  ymajorgrids, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  legend style={font=\footnotesize, fill=white, fill opacity=0.85, draw=gray!40},
+  axis line style={gray!50},
+  error bars/y dir=both, error bars/y explicit,
+  enlarge x limits=0.28,
+]
+\addplot[draw=steel!80!black, fill=steel!35] coordinates {
+  (GCN,0.163) +- (0,0.016)
+  (Heat,0.069) +- (0,0.005)
+  (QI,0.071) +- (0,0.009)};
+\addlegendentry{MAE}
+\addplot[draw=amber!80!black, fill=palegold] coordinates {
+  (GCN,0.202) (Heat,0.085) (QI,0.077)};
+\addlegendentry{far-node AURC}
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~B, operator comparison on the LEO node-potential task ($264$ satellites,
+$5$ seeds, param-matched). Global operators (Heat, QI) beat the local GCN by roughly
+$\globalgain\times$. Heat and the quantum-inspired (QI) walk tie on MAE within the seed
+spread (error bars); QI shows a small, theory-consistent edge only on the far-node AURC.}
+\label{fig:expB}
+\end{figure}

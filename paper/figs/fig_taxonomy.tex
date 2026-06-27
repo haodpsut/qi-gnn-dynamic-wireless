@@ -1,0 +1,38 @@
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  every node/.style={font=\footnotesize},
+  root/.style={box, fill=navy!12, draw=navy, font=\footnotesize\bfseries},
+  fam/.style={hot, align=center},
+  leaf/.style={plain, align=center, font=\scriptsize},
+  edge from parent/.style={draw=steel, thick, -{Stealth[length=2mm]}},
+  level 1/.style={sibling distance=64mm, level distance=14mm},
+  level 2/.style={sibling distance=22mm, level distance=16mm},
+]
+\node[root] {Graph learning as a\\propagation operator $\Prop(\Lap)$}
+  child {node[fam] {Classical\\(local / diffusive)}
+    child {node[leaf] {spatial MP\\GCN, GAT,\\GraphSAGE, GIN}}
+    child {node[leaf] {spectral\\ChebNet,\\graph wavelets}}
+    child {node[leaf] {diffusion\\GDC, APPNP\\$e^{-t\Lap}$}}
+  }
+  child {node[fam] {Quantum\\(ballistic / unitary)}
+    child {node[leaf] {quantum walks\\CTQW $e^{-it\Lap}$,\\QWNN}}
+    child {node[leaf] {QGNN / PQC\\equivariant QGC,\\quantum kernels}}
+  }
+  child {node[fam] {Quantum-inspired\\(runnable today)}
+    child {node[leaf] {$|e^{-it\Lap}|^2$ as a\\classical layer\\(this tutorial)}}
+  }
+  child {node[fam] {Dynamic-graph\\wrappers}
+    child {node[leaf] {TGN, EvolveGCN,\\DySAT (any\\operator above)}}
+  };
+\end{tikzpicture}}
+\caption{A taxonomy of graph learning organized by the propagation operator
+$\Prop(\Lap)$. Classical operators are local (spatial message passing) or diffusive
+(spectral / heat); quantum operators are unitary and ballistic (continuous-time quantum
+walks, parameterized quantum graph circuits); the quantum-inspired branch runs the
+quantum-walk kernel on classical hardware; dynamic-graph wrappers compose with any
+operator to handle a time-varying topology. This tutorial threads the classical,
+quantum, and quantum-inspired branches onto one axis.}
+\label{fig:taxonomy}
+\end{figure*}

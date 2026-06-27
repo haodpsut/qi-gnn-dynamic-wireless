@@ -1,0 +1,55 @@
+\section{Classical Graph Neural Networks as Propagation}
+\label{sec:classical}
+
+\subsection{Message passing is local propagation}
+A graph convolutional network (GCN) layer~\cite{kipf2017gcn,defferrard2016chebnet}
+updates node embeddings by averaging over neighbors and applying a learned linear map
+and nonlinearity,
+\begin{equation}
+\Feat^{(\ell+1)}=\sigma\!\big(\hat{\Adj}\,\Feat^{(\ell)}\Wt^{(\ell)}\big),\qquad
+\hat{\Adj}=\tilde{\Deg}^{-1/2}\tilde{\Adj}\,\tilde{\Deg}^{-1/2},
+\end{equation}
+where $\tilde{\Adj}=\Adj+\Id$ adds self-loops and $\tilde{\Deg}$ is its degree matrix.
+The operator $\hat{\Adj}$ is a degree-one polynomial in the adjacency, so one layer
+mixes one hop and $K$ stacked layers mix exactly $K$ hops. This locality is the key
+structural fact about GCNs: a $K$-layer GCN simply cannot move information farther
+than $K$ hops, regardless of width.
+
+\subsection{The continuous view: diffusion}
+Stacking many small averaging steps approaches a continuous diffusion. The heat
+equation on a graph, $\dot{\mathbf{x}}=-\Lap\mathbf{x}$, has the closed-form solution
+\begin{equation}
+\mathbf{x}(t)=e^{-t\Lap}\,\mathbf{x}(0),\qquad
+e^{-t\Lap}=\Eig\,\mathrm{diag}\!\big(e^{-t\lambda_k}\big)\,\Eig^{\top}.
+\label{eq:heat}
+\end{equation}
+Because $\Lap\mathbf{1}=\mathbf{0}$, the kernel $e^{-t\Lap}$ is row-stochastic and
+nonnegative: it is a genuine probability kernel that smooths a signal across the
+whole graph, with a single scalar $t$ controlling how far. A diffusion-based GNN
+layer~\cite{gasteiger2019diffusion} replaces $\hat{\Adj}$ by $e^{-t\Lap}$ and, unlike a
+fixed $K$-hop GCN, can reach any node at the cost of a learnable time $t$. Other local
+message-passing schemes~\cite{hamilton2017graphsage,velickovic2018gat} share the same
+$K$-hop horizon.
+
+\subsection{Why range matters}
+The defining property of diffusion is \emph{how fast it spreads}. For an impulse
+released at a node, the spatial second moment of the heat kernel grows linearly in
+time,
+\begin{equation}
+\Var\big[e^{-t\Lap}\big]\;\sim\;t .
+\label{eq:diffusive}
+\end{equation}
+This linear, diffusive spreading is the classical baseline against which we will
+contrast the quantum walk. It already tells us what to expect from the case study:
+on tasks that require long-range information, a global diffusion operator should beat
+a local $K$-hop GCN, simply because it can reach the far nodes at all. The interesting
+question is what, if anything, a quantum operator adds beyond reaching them.
+
+\paragraph*{Worked example} Take a path of $N=81$ nodes and release an impulse at the
+center. The heat kernel $e^{-t\Lap}$ gives a Gaussian-like profile whose spatial
+variance is exactly $2t$: at $t=1$ the variance is $2$, at $t=4$ it is $8$, and at
+$t=8$ it is $16$ (the steel curve in Fig.~\ref{fig:expA}). The mass reaches farther as
+$t$ grows, but only as $\sqrt{t}$ in distance. A $K$-layer GCN, by contrast, places
+exactly zero mass beyond hop $K$ no matter how it is trained; on this path a $3$-layer
+GCN can never see node $40$ from the center. This is the concrete sense in which range,
+not capacity, is the limiting resource for local operators.

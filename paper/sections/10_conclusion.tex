@@ -1,0 +1,35 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented graph learning for dynamic wireless topologies through a single
+unifying lens: classical message passing, graph diffusion, and quantum walks are one
+propagation operator $\Prop(\Lap)$ with different spreading physics, diffusive versus
+ballistic. From this lens we derived a param-matched quantum-inspired GNN layer that
+runs today, and we used a fully reproducible LEO case study to teach not only how to
+build it but how to judge it. The case study's honest verdict is itself the lesson. Global propagation beats local by
+a wide margin at every scale; and among global operators the quantum-inspired and
+classical kernels trade places as the graph grows, the quantum-inspired walk losing at
+$66$ satellites, tying at $264$, and becoming the best operator at $1584$, the
+diameter-driven trend its ballistic spreading predicts. The value of a quantum mechanism
+must be measured, not assumed, and the measurement must survive param-matching, multiple
+seeds, scale-free metrics, a sweep of the obvious design choices, and a test at the scale
+where the mechanism is supposed to help. We hope a reader leaves able to place any new quantum graph model
+in the operator landscape and to evaluate it without fooling themselves.
+
+The practical takeaways are short. (i) Treat GCN, diffusion, and quantum walks as one
+propagation operator $\Prop(\Lap)$ and pick the spreading physics the task needs. (ii) On
+a long-range task over a large dynamic graph, a global operator is mandatory and a fixed
+$K$-hop GCN is the wrong tool. (iii) Among global operators, classical heat is a strong,
+cheap default at small-to-medium scale; reach for a quantum-inspired walk on large,
+long-range graphs, where our largest-scale experiment shows it becomes the best operator,
+and confirm any gain with a multi-seed comparison. (iv) True
+quantum hardware is a research path, not a deployment choice today: the ballistic
+mechanism is real but fragile to NISQ noise. (v) Above all, evaluate honestly,
+param-matched operators, multiple seeds, scale-free metrics, honest denominators, and a
+design sweep before any verdict.
+
+\section*{Data and Code Availability}
+All experiments, the LEO topology generator, the operators, and the figure-generation
+scripts are available at \url{https://github.com/haodpsut/qi-gnn-dynamic-wireless}.
+Every figure in this tutorial is regenerated from seeded runs by the scripts in that
+repository.

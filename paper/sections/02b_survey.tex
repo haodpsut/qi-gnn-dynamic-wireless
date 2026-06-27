@@ -1,0 +1,143 @@
+\section{A Survey of Graph Learning for Wireless Networks, by Operator}
+\label{sec:survey}
+
+Having fixed the propagation-operator view, we use it to organize the landscape.
+Fig.~\ref{fig:taxonomy} is the map: every method we discuss is a choice of operator
+$\Prop(\Lap)$, optionally wrapped to handle a time-varying graph. This section surveys
+the four branches and their use in wireless and non-terrestrial networks; the depth on
+each is intentionally uneven, favoring the operators we later build and test.
+
+\input{figs/fig_taxonomy}
+
+\subsection{Classical operators}
+The spatial branch of message passing, GCN~\cite{kipf2017gcn},
+GraphSAGE~\cite{hamilton2017graphsage}, GAT~\cite{velickovic2018gat},
+GIN~\cite{xu2019gin}, and the general message-passing framework~\cite{gilmer2017mpnn},
+shares a $K$-hop horizon and is surveyed comprehensively
+elsewhere~\cite{wu2021gnnsurvey,zhou2020gnnreview,bronstein2017geometric}. The spectral
+branch, rooted in graph signal processing~\cite{shuman2013gsp,ortega2018gsp} and spectral
+graph theory~\cite{chung1997spectral}, expresses a layer as a function of $\Lap$:
+ChebNet~\cite{defferrard2016chebnet} and graph wavelets~\cite{hammond2011wavelets} are
+polynomials of the spectrum, while the diffusion branch
+(GDC~\cite{gasteiger2019diffusion}, APPNP~\cite{gasteiger2019appnp},
+GCNII~\cite{chen2020gcnii}) uses the heat kernel $e^{-t\Lap}$ or its rational cousins to
+propagate globally. The recurring failure mode of the local branch, the inability to
+carry information past the depth horizon, is studied as over-smoothing~\cite{li2018deeper}
+and over-squashing~\cite{alon2021bottleneck,topping2022oversquashing}; it is exactly the
+deficiency our case study exposes.
+
+\subsection{Quantum and quantum-inspired operators}
+The quantum branch replaces dissipative diffusion by unitary evolution. Continuous-time
+quantum walks~\cite{farhi1998quantumwalk,childs2004quantumwalk}, reviewed
+in~\cite{kempe2003qwalk,venegas2012quantumwalks,portugal2013book}, underlie quantum
+speedups~\cite{childs2003exponential} and are computationally
+universal~\cite{childs2009universal}; their learning incarnation is the quantum-walk
+neural network~\cite{dernbach2019qwnn}. The parameterized-circuit branch encodes graph
+features into qubits and learns with variational
+circuits~\cite{mitarai2018qcl,farhi2018classification,cerezo2021vqa}: quantum graph
+neural networks~\cite{verdon2019qgnn}, equivariant quantum graph
+circuits~\cite{mernyei2022equivariant}, and quantum graph kernels~\cite{henry2021quantumkernel}.
+Their appeal is the exponential-dimensional feature
+map~\cite{schuld2019featurespace,havlicek2019supervised,schuld2018book} and, in some
+settings, provable data or speed advantages~\cite{huang2021power,liu2021rigorous};
+their obstacles are NISQ noise~\cite{preskill2018nisq}, barren
+plateaus~\cite{mcclean2018barren}, and limited qubits, surveyed
+in~\cite{biamonte2017qml,dunjko2018review}. The quantum-inspired branch sidesteps the
+hardware by running the quantum-walk kernel $|e^{-it\Lap}|^2$ as a classical layer; it is
+the operator we build and evaluate, and Table~\ref{tab:opfamilies} places it against the
+others.
+
+\subsection{Handling the time-varying topology}
+Any operator above can be wrapped to track a changing graph. Dynamic-graph
+methods~\cite{kazemi2020dynamicsurvey} such as TGN~\cite{rossi2020tgn},
+EvolveGCN~\cite{pareja2020evolvegcn}, and DySAT~\cite{sankar2020dysat} learn over a
+sequence of snapshots; for LEO networks the future graph is moreover known from
+ephemeris, a structure most of these methods do not exploit and that we flag as an
+opportunity in Section~\ref{sec:roadmap}.
+
+\begin{table}[t]
+\centering
+\caption{Operator families on the propagation axis. $N$ nodes, $|E|$ edges,
+$K$ layers/hops, $d$ feature width.}
+\label{tab:opfamilies}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabular}{@{}p{0.20\columnwidth}p{0.20\columnwidth}p{0.16\columnwidth}p{0.18\columnwidth}@{}}
+\toprule
+Family & Operator $\Prop$ & Reach / spread & Cost (layer) \\
+\midrule
+Spatial MP & $\hat{\Adj}$ (1-hop) & local, $K$ hops & $O(|E|d)$ \\
+Diffusion & $e^{-t\Lap}$ & global, $\sim\!\sqrt{t}$ & $O(N^3)$ eig$^\dagger$ \\
+Quantum walk & $e^{-it\Lap}$ (unitary) & global, $\sim\! t$ & $O(N^3)$ eig$^\dagger$ \\
+Quantum-inspired & $|e^{-it\Lap}|^2$ & global, $\sim\! t$ & $O(N^3)$ eig$^\dagger$ \\
+True QGNN/PQC & PQC on qubits & Hilbert-space & NISQ-limited \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+{\footnotesize $^\dagger$ amortized over layers; reducible to $O(|E|)$ per
+matrix-vector product with Chebyshev/Krylov approximation (Section~\ref{sec:roadmap}).}
+\end{table}
+
+\subsection{Graph and quantum learning in wireless and non-terrestrial networks}
+On the application side, graph learning is now established for communication
+networks~\cite{suarezvarela2023gnn,jiang2022graph}; we group the uses by the task they
+place on the graph.
+
+\emph{Routing and traffic engineering.} The earliest and most direct use treats the
+network as a graph and learns to predict path-level quantities. RouteNet models per-path
+delay, jitter, and loss and uses the learned model to optimize
+routing~\cite{rusek2020routenet}; the appeal is that a graph model generalizes across
+topologies a per-topology optimizer cannot reuse. This is the regime where the local
+versus global operator distinction of this tutorial bites hardest, because routing
+potentials are long-range fields on a large-diameter graph.
+
+\emph{Resource management and physical layer.} A second line learns resource-allocation
+and power-control policies as functions on the interference or connectivity graph, where
+permutation-equivariant graph operators give scalability and transferability that dense
+networks lack~\cite{shen2021gnnradio,eisen2020optimal}, frequently combined with
+reinforcement learning for sequential control~\cite{mao2016resource}. Here the graph is
+often denser and lower-diameter, so a local operator can suffice, a useful contrast to
+the routing regime that the operator view makes explicit.
+
+\emph{Non-terrestrial and satellite networks.} LEO
+mega-constellations~\cite{delportillo2019technical} are the setting of our case study:
+they pose low-latency routing over a fast-moving but ephemeris-predictable
+topology~\cite{handley2018delay}, with packet-level simulators available for honest
+evaluation~\cite{kassing2020hypatia}. Because the constellation is physically distributed
+and bandwidth to the ground is scarce, learning is increasingly pushed on board and
+across satellites through federated schemes~\cite{razmi2022board,matthiesen2024federated},
+which raises the decentralization question we return to in Section~\ref{sec:roadmap}.
+
+\emph{Quantum methods for networking.} Quantum techniques enter this space along two
+routes: quantum search and optimization for discrete network functions such as
+virtualization and routing~\cite{botsinis2019quantum}, and the longer-term
+quantum-internet vision in which entanglement distribution is itself a network
+service~\cite{wehner2018quantum}. Graph-structured quantum learning, the subject of this
+tutorial, sits between them: a learned propagation operator rather than a fixed search
+subroutine.
+
+Table~\ref{tab:qgraphworks} summarizes representative quantum graph-learning works by how
+they encode the graph and what they target. The gap this tutorial fills is the
+controlled, honest comparison of these operators on a single dynamic-wireless task, which
+the application literature above rarely isolates.
+
+\begin{table}[t]
+\centering
+\caption{Representative quantum / quantum-inspired graph-learning works by encoding and
+target. Sim = classical simulation; HW = quantum hardware.}
+\label{tab:qgraphworks}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabular}{@{}p{0.27\columnwidth}p{0.30\columnwidth}p{0.18\columnwidth}@{}}
+\toprule
+Work & Mechanism / encoding & Realization \\
+\midrule
+CTQW~\cite{childs2004quantumwalk} & unitary $e^{-it\Lap}$, search & theory \\
+QWNN~\cite{dernbach2019qwnn} & learned-coin quantum walk & Sim \\
+QGNN~\cite{verdon2019qgnn} & Hamiltonian-based PQC & Sim \\
+EQGC~\cite{mernyei2022equivariant} & equivariant graph circuit & Sim \\
+Quantum kernel~\cite{henry2021quantumkernel} & evolution kernel, qubit array & Sim/HW \\
+This tutorial & $|e^{-it\Lap}|^2$ classical layer & Sim (CPU) \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,109 @@
+\documentclass[journal]{IEEEtran}
+
+% ---- packages -----------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathmorphing,shapes.geometric}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+
+% ---- palette (navy / steel / amber) -------------------------------------
+\definecolor{navy}{RGB}{20,40,90}
+\definecolor{steel}{RGB}{70,110,160}
+\definecolor{amber}{RGB}{220,150,30}
+\definecolor{ink}{RGB}{35,35,40}
+\definecolor{paleblue}{RGB}{225,233,245}
+\definecolor{palegold}{RGB}{250,238,210}
+
+% ---- shared tikz styles (avoid reserved names) --------------------------
+\tikzset{
+  box/.style   = {rounded corners=2pt, draw=navy, fill=paleblue, text=ink,
+                  align=center, inner sep=4pt, font=\footnotesize},
+  hot/.style   = {rounded corners=2pt, draw=amber!80!black, fill=palegold,
+                  text=ink, align=center, inner sep=4pt, font=\footnotesize},
+  plain/.style = {draw=steel, fill=white, text=ink, align=center,
+                  inner sep=3pt, font=\scriptsize},
+  flow/.style  = {-{Stealth[length=2.5mm]}, draw=steel, thick},
+}
+
+% ---- math shortcuts -----------------------------------------------------
+\newcommand{\Lap}{\mathbf{L}}
+\newcommand{\Adj}{\mathbf{A}}
+\newcommand{\Id}{\mathbf{I}}
+\newcommand{\Deg}{\mathbf{D}}
+\newcommand{\Eig}{\mathbf{U}}
+\newcommand{\Feat}{\mathbf{H}}
+\newcommand{\Wt}{\mathbf{W}}
+\newcommand{\Prop}{\boldsymbol{\Phi}}
+\newcommand{\real}{\mathrm{Re}}
+\newcommand{\imag}{\mathrm{Im}}
+\DeclareMathOperator{\Var}{Var}
+
+% ---- result numbers (single source of truth; updated from result CSVs) ---
+\input{sections/_numbers}
+
+\begin{document}
+
+\title{Quantum and Quantum-Inspired Graph Neural Networks for Dynamic Wireless
+Network Topologies: A Tutorial and Survey with a Reproducible LEO Case Study}
+
+\author{Phuc~Hao~Do%
+\thanks{P. H. Do is with the Faculty of Information Technology, Danang
+Architecture University, Danang, Vietnam (e-mail: haodp@dau.edu.vn).}%
+\thanks{Companion code: \url{https://github.com/haodpsut/qi-gnn-dynamic-wireless}.}}
+
+\markboth{IEEE Transactions on Network Science and Engineering (tutorial)}%
+{Do: Quantum and Quantum-Inspired Graph Neural Networks for Dynamic Wireless Topologies}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Graph neural networks, quantum walks, quantum machine learning, low Earth orbit
+satellite networks, non-terrestrial networks, dynamic graphs, reproducibility.
+\end{IEEEkeywords}
+
+\input{sections/01_intro}
+\input{sections/01b_related}
+\input{sections/02_background}
+\input{sections/02b_survey}
+\input{sections/03_classical}
+\input{sections/04_quantum}
+\input{sections/05_buildit}
+\input{sections/06_casestudy}
+\input{sections/07_pitfalls}
+\input{sections/08_decision}
+\input{sections/09_roadmap}
+\input{sections/095_threats}
+\input{sections/10_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\begin{IEEEbiographynophoto}{Phuc Hao Do}
+is a Lecturer and Researcher in the Faculty of Information Technology at Danang
+Architecture University (DAU), Viet Nam. He received the Ph.D. degree in
+telecommunications systems and networks from the Bonch-Bruevich Saint Petersburg State
+University of Telecommunications (SPbSUT), Russia, in 2026. His research interests
+include intelligent 6G non-terrestrial networks, quantum-inspired AI, Kolmogorov-Arnold
+networks (KAN), resilient computing, and network security. He has authored peer-reviewed
+papers in international journals and conferences on IoT malware detection, satellite
+communication optimization, and deep learning architectures.
+\end{IEEEbiographynophoto}
+
+\end{document}

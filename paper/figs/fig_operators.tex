@@ -1,0 +1,43 @@
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=6mm]
+% center: the Laplacian
+\node[box, minimum width=22mm] (lap) {Graph Laplacian\\$\Lap=\Deg-\Adj$};
+
+% three operators
+\node[hot, above right=6mm and 22mm of lap] (gcn) {GCN (local)\\$\hat{\Adj}$, $K$ hops};
+\node[hot, right=22mm of lap] (heat) {Heat (global)\\$e^{-t\Lap}$};
+\node[hot, below right=6mm and 22mm of lap] (qw) {Quantum walk (global)\\$e^{-it\Lap}$};
+
+\draw[flow] (lap) -- (gcn);
+\draw[flow] (lap) -- (heat);
+\draw[flow] (lap) -- (qw);
+
+% spreading law annotations
+\node[plain, right=20mm of gcn] (gcns) {polynomial,\\$K$-hop horizon};
+\node[plain, right=20mm of heat] (heats) {diffusive\\$\Var\sim t$};
+\node[plain, right=20mm of qw] (qws) {\textbf{ballistic}\\$\Var\sim t^2$};
+
+\draw[flow] (gcn) -- (gcns);
+\draw[flow] (heat) -- (heats);
+\draw[flow] (qw) -- (qws);
+
+% mini spreading sketches
+\begin{scope}[shift={($(heats.east)+(14mm,0)$)}]
+  \draw[steel, thick] plot[domain=-1.2:1.2, samples=40]
+       (\x, {0.6*exp(-2*\x*\x)});
+  \node[font=\scriptsize, text=ink, above] at (0,0.65) {heat};
+\end{scope}
+\begin{scope}[shift={($(qws.east)+(14mm,0)$)}]
+  \draw[amber!80!black, thick] plot[domain=-1.2:1.2, samples=60]
+       (\x, {0.45*(cos(deg(6*\x))*exp(-1.5*\x*\x))+0.15});
+  \node[font=\scriptsize, text=ink, above] at (0,0.65) {quantum walk};
+\end{scope}
+\end{tikzpicture}}
+\caption{The unifying view. One Laplacian, three propagation operators, two spreading
+laws. The only fundamental difference between classical diffusion and the quantum walk
+is diffusive ($\Var\sim t$) versus ballistic ($\Var\sim t^2$) spreading; everything
+else in the network is shared, which makes the operators param-matched.}
+\label{fig:operators}
+\end{figure*}

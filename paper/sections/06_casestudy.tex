@@ -1,0 +1,284 @@
+\section{A Reproducible LEO Case Study}
+\label{sec:casestudy}
+
+The case study comprises five experiments, summarized in Table~\ref{tab:expsummary};
+each isolates one question, from the bare mechanism to scale and hardware noise, and each
+is reproducible from seeded runs in the companion code.
+
+\begin{table}[t]
+\centering
+\caption{The five case-study experiments and what each isolates.}
+\label{tab:expsummary}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabular}{@{}p{0.07\columnwidth}p{0.40\columnwidth}p{0.40\columnwidth}@{}}
+\toprule
+Exp & Question & Finding \\
+\midrule
+A & Does the quantum walk spread faster than diffusion? & Yes, exactly: ballistic
+$\Var\!\sim\!t^2$ vs diffusive $\Var\!\sim\!t$ \\
+B & Operator comparison on the LEO task & global $\gg$ local ($\sim\!\globalgain\times$);
+QW ties heat within seed noise \\
+B2 & Does any quantum-walk variant win? & adjacency walk is best, edge on far nodes,
+within noise on MAE \\
+C & Two evaluation pitfalls & scale-coupled norm and single-seed both fabricate
+advantages \\
+D & Does the mechanism survive device noise? & no: depolarizing noise decoheres the
+walk toward uniform \\
+E & Does the ranking hold at scale? & quantum-inspired walk overtakes heat at $1584$;
+the ballistic edge grows with diameter \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Setup}
+We instantiate a Walker-delta LEO constellation with pure-NumPy circular-orbit
+propagation, so the entire topology is reproducible from parameters alone. Inter
+satellite links follow the standard $+$Grid pattern with a polar cutoff; restricting
+to the largest connected component yields a snapshot graph. The case-study scale is a
+$264$-satellite shell; a smaller $66$-satellite shell is used where noted for the
+seed study.
+
+\textbf{Task.} For a randomly chosen destination $v_d$, each node receives the input
+feature $[\mathbf{1}\{i=v_d\},\,\deg_i/\max\deg]$, a single seeded signal, and the
+target is the graph-geodesic hop distance $y_i=d_G(i,v_d)$ normalized by the source
+eccentricity. The model must propagate the seed across the graph to recover the
+distance field (Fig.~\ref{fig:leotask}). This task is deliberately decoupled from any
+particular routing or traffic-engineering system: it isolates the propagation question.
+
+\textbf{Reproducibility details.} The constellations are Walker-delta shells: a
+$66$-satellite shell ($6$ planes of $11$, inclination $86.4^\circ$, altitude $780$~km), a
+$264$-satellite shell ($24\times 11$, $53^\circ$, $550$~km), and the Starlink shell-1
+geometry ($1584$ satellites, $72\times 22$, $53^\circ$, $550$~km) for the scale test.
+Positions follow pure circular-orbit propagation in an Earth-centered inertial frame, and
+inter-satellite links use the $+$Grid pattern with a $70^\circ$ polar cutoff and the
+counter-rotating seam cut. Each instance draws a random snapshot time and a random
+destination; the Laplacian is eigendecomposed once and shared across operators. Every
+model is a three-to-four-layer network of width $32$ trained with Adam for a few hundred
+epochs; all randomness (initialization, snapshot sampling, destination choice) is seeded,
+and the seeds, hyperparameters, and figure scripts are in the companion repository so each
+number here is regenerable. We deliberately avoid any tuning that differs between
+operators, so the comparison stays param-matched.
+
+\textbf{Protocol (a rigor battery).} We follow the evaluation discipline that
+robustness and dependability venues now expect, where the trustworthiness of the
+\emph{evaluation} is treated as seriously as the headline number. Four rules are fixed
+before any result is read. (i) \emph{Param-matched operators}: all models share depth,
+width, and weight shapes (Section~\ref{sec:buildit}), so a gap is attributable to the
+operator and not to capacity. (ii) \emph{Multiple seeds}: every reported number is a
+mean and standard deviation over at least three seeds (five for the operator
+comparison, eight for the seed study), never a single run; a ranking that lies inside
+the combined spread is reported as a tie, not a result. (iii) \emph{Scale-free summary
+metric}: alongside mean absolute error (MAE) we report a far-node
+area-under-the-error-curve (AURC), the error integrated over a difficulty axis
+$\rho\in[0,1]$ where bin $\rho$ keeps nodes with $d_G(i,v_d)\ge\rho\,\mathrm{ecc}(v_d)$.
+The AURC is a single number, robust to picking a flattering far-node threshold and to
+the graph scale. (iv) \emph{Design sweep before a verdict}: we vary the obvious
+quantum-walk design choices (Exp~B2) so that any conclusion is about the mechanism, not
+one implementation. Every number in the tables and figures is regenerated from seeded
+runs by the companion code, so the paper and the released artifact cannot drift apart.
+
+\input{figs/fig_leotask}
+
+\subsection{Mechanism: ballistic vs diffusive (Exp A)}
+We first verify the mechanism in isolation. Releasing a unit impulse at the center of
+a path graph and propagating it, we measure the spatial second moment versus
+propagation time for both operators. Fig.~\ref{fig:expA} confirms the theory exactly:
+the heat kernel spreads diffusively ($\Var\sim t$) and the quantum walk ballistically
+($\Var\sim t^2$), matching \eqref{eq:diffusive} and \eqref{eq:ballistic}. A log-log
+fit recovers slopes of $1.00$ and $2.00$. This is the clean, theory-backed sense in
+which the quantum operator reaches farther per unit time.
+
+\input{figs/fig_expA}
+
+\subsection{Operator comparison (Exp B)}
+We then train the three operators on the LEO task over five seeds. The results are
+summarized in Table~\ref{tab:operators} and Fig.~\ref{fig:expB}. Two findings stand
+out, and we state both honestly.
+
+\textit{Global beats local, by a lot.} Both global operators reduce error roughly
+$\globalgain\times$ relative to the local GCN (MAE $\bMAEheat$ and $\bMAEqw$ versus
+$\bMAEgcn$; the gap is even larger on the far-node AURC, $\bAURCheat$ and $\bAURCqw$
+versus $\bAURCgcn$). This is the robust, unambiguous result of the study: a $K$-hop
+GCN cannot cover a graph whose diameter exceeds $K$, while a global operator can.
+
+\textit{Quantum-inspired ties classical, within noise.} The quantum-inspired walk and
+the classical heat kernel are statistically indistinguishable on overall MAE
+($\bMAEqw\pm\bSTDqw$ versus $\bMAEheat\pm\bSTDheat$), and the quantum-inspired operator
+is the noisier of the two. The one place it shows a consistent edge is the far-node
+AURC ($\bAURCqw$ versus $\bAURCheat$), which is exactly where ballistic spreading
+should help: on the hardest, most distant nodes. The edge is small and stays within
+the seed-to-seed spread, so \emph{at this $264$-satellite scale} we do not claim a
+quantum advantage; we report a theory-consistent tendency that a single seed would have
+over- or under-stated, and that the scale experiment (Section~\ref{sec:expe}) will turn
+into a clear win at larger diameter.
+
+\begin{table}[t]
+\centering
+\caption{Operator comparison on the LEO node-potential task ($264$ satellites,
+$5$ seeds, param-matched). Lower is better.}
+\label{tab:operators}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Operator & MAE & far-node AURC & params \\
+\midrule
+GCN (local)            & $\bMAEgcn\pm\bSTDgcn$  & $\bAURCgcn$ & $3301$ \\
+Heat (global)          & $\bMAEheat\pm\bSTDheat$ & $\bAURCheat$ & $3301$ \\
+Quantum-inspired (global) & $\bMAEqw\pm\bSTDqw$  & $\bAURCqw$  & $3301$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{figs/fig_expB}
+
+\textit{Why the seeds matter.} Table~\ref{tab:perseed} lists the five per-seed runs
+behind the aggregate. They make the within-noise verdict concrete: the quantum-inspired
+walk wins on seeds $0$ and $3$ and loses on seeds $1$, $2$, and $4$ (seed $1$ a near
+tie), while the local GCN loses on every seed by a wide margin. Reporting seed $0$ alone
+would have advertised a clean quantum win ($0.068$ versus $0.077$); reporting seed $2$
+alone would have shown a clean quantum loss ($0.082$ versus $0.068$). Neither is the
+truth. Only the
+distribution, $\bMAEqw\pm\bSTDqw$ versus $\bMAEheat\pm\bSTDheat$, supports an honest
+statement, and that statement is ``tie.'' This single table is the strongest argument in
+the tutorial for never trusting a single seed.
+
+\begin{table}[t]
+\centering
+\caption{Per-seed MAE behind Table~\ref{tab:operators} (LEO task, $264$ satellites).
+Bold marks the better (lower) per-seed value. The quantum-inspired walk and heat trade
+wins across seeds; the local GCN loses every seed. The ranking inside the seed spread is
+a tie, not a result.}
+\label{tab:perseed}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}lccccc|c@{}}
+\toprule
+Operator & s0 & s1 & s2 & s3 & s4 & mean \\
+\midrule
+GCN  & .148 & .176 & .168 & .181 & .140 & $\bMAEgcn$ \\
+Heat & .077 & \textbf{.063} & \textbf{.068} & .063 & \textbf{.072} & $\bMAEheat$ \\
+QI   & \textbf{.068} & .063 & .082 & \textbf{.062} & .080 & $\bMAEqw$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Trying to rescue the advantage (Exp B2)}
+Before concluding, we probe whether a different quantum-walk design recovers a clear
+win: a walk on the adjacency $e^{-it\Adj}$, a walk on the normalized Laplacian
+$e^{-it\Lap^{\mathrm{sym}}}$, and a multi-time readout that concatenates several
+learnable propagation times. The first two are param-matched; the multi-time variant
+is given extra capacity, so it is a generous upper bound for the family.
+Table~\ref{tab:variants} reports the outcome, and the sweep matters.
+\bbVariantNote
+
+The methodological lesson is the point. Had we stopped at the Laplacian walk of
+Exp~B, we would have concluded that the quantum-inspired operator merely ties the
+classical one. The sweep shows that conclusion was about one implementation, not the
+mechanism: a different and equally natural choice, the adjacency walk, is in fact the
+best operator we tested, at matched parameters and with the lowest variance. At this
+$264$-satellite scale the overall-MAE margin over heat
+($\bbAdjMAE\pm\bbAdjMAEstd$ versus $\bbHeatMAE$) still stays within the seed spread; the
+honest verdict moves from ``ties'' to ``the best variant, with a consistent edge on the
+hardest nodes,'' and only a design sweep could have told the difference. The scale
+experiment (Section~\ref{sec:expe}) then shows this edge widening into a clear win at
+$1584$ satellites.
+
+\begin{table}[t]
+\centering
+\caption{Quantum-walk variant probe on the LEO task ($264$ satellites, $5$ seeds).
+Lower is better. The multi-time variant is capacity-favoured.}
+\label{tab:variants}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Variant & MAE & far-node AURC & params \\
+\midrule
+Heat (reference)                 & $\bbHeatMAE$ & $\bbHeatAURC$ & $3301$ \\
+QW on $\Lap$ (baseline)          & $\bbLapMAE$  & $\bbLapAURC$  & $3301$ \\
+\textbf{QW on $\Adj$}            & $\mathbf{\bbAdjMAE}$ & $\mathbf{\bbAdjAURC}$ & $3301$ \\
+QW on $\Lap^{\mathrm{sym}}$      & $\bbNormMAE$ & $\bbNormAURC$ & $3301$ \\
+QW multi-time (higher capacity)  & $\bbMultiMAE$ & $\bbMultiAURC$ & $9581$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{figs/fig_expB2}
+
+\subsection{From quantum-inspired to true quantum: NISQ noise (Exp D)}
+The case study uses the quantum-walk kernel as a \emph{classical} layer. To see what is
+lost on real hardware, we run the continuous-time quantum walk of Exp~A as an actual
+quantum circuit (a PennyLane mixed-state simulator on an $8$-node path) and inject
+per-qubit depolarizing noise of strength $p$. Fig.~\ref{fig:expD} shows the coherent,
+ballistic structure decohering toward the uniform mixed state as $p$ grows: the $L_1$
+distance to uniform falls from $\dLoneClean$ to $\dLoneNoisy$, and the spread variance
+drops from its clean value $\dVarClean$ toward the featureless uniform level $5.25$. The
+ballistic mechanism that Exp~A verified exactly is therefore fragile to noise, which is
+the concrete reason the runnable path today is the classical quantum-inspired surrogate,
+not a NISQ implementation. A fuller hardware study (noise-aware training, larger graphs)
+is left to future work (Section~\ref{sec:roadmap}).
+
+\input{figs/fig_expD}
+
+\subsection{The quantum-inspired edge emerges at scale (Exp E)}
+\label{sec:expe}
+To test the operator ranking beyond the $264$-satellite scale, we repeat the comparison,
+at the same training budget, on a Starlink shell-1 graph of $1584$ satellites, the largest
+at which a full eigendecomposition of $\Lap$ remains affordable on a CPU.
+Table~\ref{tab:scale} and Fig.~\ref{fig:scale} report MAE across the three shells, and the
+trend is the most interesting result in the study. Global operators keep their large lead
+over the local GCN. More tellingly, the quantum-inspired and classical global operators
+\emph{change places as the graph grows}: at $66$ satellites heat wins
+($\cTwoHeat$ vs $\cTwoQw$), at $264$ they tie ($\bMAEheat$ vs $\bMAEqw$), and at $1584$
+the quantum-inspired walk is clearly best, $\eMAEqw\!\pm\!\eMAEqwStd$ versus heat's
+$\eMAEheat\!\pm\!\eMAEheatStd$, winning two of three seeds with markedly lower variance,
+and far ahead on the far-node metric ($\eAURCqw$ versus $\eAURCheat$). This is exactly
+what the ballistic mechanism predicts: an operator whose reach grows as $t$ rather than
+$\sqrt{t}$ should help most where geodesics are longest, and diameter grows with the
+constellation. We temper the claim only by the three-seed budget at this scale; within
+that limit the trend is monotone and theory-consistent, and it directly answers the
+external-validity concern of Section~\ref{sec:threats}.
+
+\begin{table}[t]
+\centering
+\caption{Operator MAE across constellation scale (lower is better), same training budget
+at every scale. The quantum-inspired walk goes from losing ($66$) to tying ($264$) to
+winning ($1584$) against the classical heat kernel, as the ballistic mechanism predicts.}
+\label{tab:scale}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Operator & $66$ sats & $264$ sats & $1584$ sats \\
+\midrule
+GCN (local)               & $\cTwoGcn$  & $\bMAEgcn$  & $\eMAEgcn$ \\
+Heat (global)             & $\cTwoHeat$ & \textbf{$\bMAEheat$} & $\eMAEheat$ \\
+Quantum-inspired (global) & $\cTwoQw$   & $\bMAEqw$   & \textbf{$\eMAEqw$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{figs/fig_scale}
+
+\subsection{Discussion: reading the findings together}
+The case study tells a consistent story across its parts, and the consistency is what
+makes it trustworthy. The mechanism experiment (Exp~A) confirms, exactly and without
+training, that the quantum walk reaches farther per unit time than diffusion. The
+operator comparison (Exp~B) shows that reach is decisive against a local operator: the
+GCN, capped at its hop horizon, loses by roughly $\globalgain\times$, while at the
+$264$-satellite scale heat and the Laplacian walk are statistically tied. The variant
+probe (Exp~B2) shows the tie is implementation-dependent, the adjacency walk edging heat
+on the far-node metric. The scale experiment (Exp~E) then supplies the unifying thread:
+the quantum-inspired walk loses at $66$ satellites, ties at $264$, and \emph{wins} at
+$1584$, exactly the monotone, diameter-driven trend the ballistic mechanism predicts. The
+four views do not merely fail to contradict one another; they line up along a single
+axis, the longer the geodesics, the more the $\Var\!\sim\!t^2$ reach of the walk matters.
+That alignment is the signature of a real mechanism rather than a lucky configuration.
+
+The same consistency bounds how far we may push the claim. The scale trend rests on a
+three-seed budget at $1584$ satellites, and at small and medium scale the quantum-inspired
+operator is at best a tie and is noisier than heat. The honest synthesis for a
+practitioner is therefore: a global operator is mandatory; the classical heat kernel is an
+excellent default at small-to-medium diameter; and the quantum-inspired walk is worth
+adopting where the graph is large and long-range, the regime where our largest-scale
+experiment shows it is the best operator. That is a more useful and more durable message
+than a blanket advantage would have been, and it is the message the data actually
+supports.

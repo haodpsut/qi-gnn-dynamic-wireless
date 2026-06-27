@@ -1,0 +1,102 @@
+\section{Build It: A Quantum-Inspired GNN Layer}
+\label{sec:buildit}
+
+We now assemble a concrete, param-matched model. The design principle is that all
+three operators share architecture and differ \emph{only} in $\Prop$, so any
+performance gap is attributable to the operator and not to capacity.
+
+\subsection{The shared layer}
+Given layer embeddings $\Feat^{(\ell)}$, every model computes
+\begin{equation}
+\Feat^{(\ell+1)}=\sigma\!\big(\Prop^{(\ell)}\,\Feat^{(\ell)}\,\Wt^{(\ell)}+\mathbf{b}^{(\ell)}\big),
+\end{equation}
+and differs only in the operator:
+\begin{align}
+\text{GCN:}&\quad \Prop^{(\ell)}=\hat{\Adj}\ \text{(fixed)},\\
+\text{Heat:}&\quad \Prop^{(\ell)}=\Eig\,\mathrm{diag}(e^{-t_\ell\lambda})\,\Eig^{\top},\\
+\text{QI:}&\quad \Prop^{(\ell)}=\big|\Eig\,\mathrm{diag}(e^{-it_\ell\lambda})\,\Eig^{*}\big|^2 .
+\end{align}
+The heat and quantum-inspired (QI) operators add one learnable scalar $t_\ell$ per
+layer, which is negligible against the weight matrices, so the three models have
+essentially identical parameter counts. Because $\Prop$ is built from the eigenvalues
+$\lambda$ with differentiable functions, $t_\ell$ trains by ordinary backpropagation;
+a single eigendecomposition of $\Lap$ per graph is reused across layers and operators.
+
+\subsection{Algorithm}
+Algorithm~\ref{alg:qignn} gives the QI-GNN forward pass; the heat and GCN variants
+are the same template with their operator substituted. Fig.~\ref{fig:qignn} shows the
+data flow.
+
+\begin{algorithm}[t]
+\caption{QI-GNN forward pass (one graph)}
+\label{alg:qignn}
+\begin{algorithmic}[1]
+\REQUIRE features $\mathbf{X}$; eigenpairs $(\lambda,\Eig)$ of $\Lap$;
+parameters $\{t_\ell,\Wt^{(\ell)},\mathbf{b}^{(\ell)}\}_{\ell=0}^{K-1}$
+\STATE $\Feat\leftarrow\mathbf{X}$
+\FOR{$\ell=0$ to $K-1$}
+  \STATE $\Prop\leftarrow\big|\Eig\,\mathrm{diag}(e^{-i\,t_\ell\lambda})\,\Eig^{*}\big|^2$
+         \hfill\COMMENT{quantum-walk probability kernel}
+  \STATE $\Feat\leftarrow\sigma\big(\Prop\,\Feat\,\Wt^{(\ell)}+\mathbf{b}^{(\ell)}\big)$
+\ENDFOR
+\RETURN $\mathrm{readout}(\Feat)$
+\end{algorithmic}
+\end{algorithm}
+
+\input{figs/fig_qignn}
+
+\subsection{Design variants}
+The quantum-walk family has design knobs worth knowing, which we probe empirically in
+Section~\ref{sec:casestudy}: the walk can run on the adjacency $e^{-it\Adj}$ or the
+normalized Laplacian $e^{-it\Lap^{\mathrm{sym}}}$ instead of $\Lap$, and a layer can
+concatenate several learnable times $\{t_{\ell,m}\}$ for a multi-time readout. These
+are alternatives a practitioner would naturally try when seeking an advantage, so we
+test them rather than assume one of them is best.
+
+\subsection{A worked micro-example}
+To make the operator concrete, take the $3$-node path $1\!-\!2\!-\!3$ with combinatorial
+Laplacian
+\begin{equation}
+\Lap=\begin{pmatrix} 1 & -1 & 0\\ -1 & 2 & -1\\ 0 & -1 & 1\end{pmatrix},
+\quad \text{eigenvalues } \lambda\in\{0,1,3\}.
+\end{equation}
+Seeding the centre node and propagating for a small time $t$, the heat kernel keeps the
+mass concentrated near the centre and merely leaks symmetrically outward, whereas the
+quantum-walk probability $|e^{-it\Lap}|^2$ develops oscillatory amplitude that, as $t$
+grows, pushes weight onto the two endpoints faster than diffusion would. On this tiny
+graph the difference is modest, but it is the same mechanism that, scaled to a constellation
+of large diameter, separates a global operator from a local one and produces the far-node
+behavior measured in Section~\ref{sec:casestudy}. In code, the entire layer is the three
+lines of Algorithm~\ref{alg:qignn}: form the eigenpairs once, build $\Prop$ from a
+learnable $t_\ell$, and apply $\sigma(\Prop\Feat\Wt_\ell)$.
+
+\subsection{Cost}
+The three operators differ in cost as well as physics. The GCN operator $\hat{\Adj}$ is
+sparse, so a layer costs $O(|E_t|\,d)$ for $d$-dimensional features. The heat and
+quantum-walk kernels are dense $N\times N$ matrices built from one symmetric
+eigendecomposition per graph, an $O(N^3)$ step that dominates at our scale but is shared
+across layers and across all spectral operators, so it is amortized. For the hundreds of
+nodes in the case study this is a fraction of a second on a CPU. It does not scale to
+thousands of satellites, which is why Section~\ref{sec:roadmap} turns to
+Krylov-subspace and Chebyshev approximations that compute the action $e^{-it\Lap}\Feat$
+without ever forming the full kernel or its spectrum. The practical takeaway is that the
+quantum-inspired operator carries no training-time penalty relative to classical
+diffusion: they share the same bottleneck.
+
+\subsection{A practical recipe}
+To apply this framework to a new dynamic-wireless task, the following recipe captures the
+whole workflow. (1) \emph{Build the graph}: define $G_t$ from the network state, the
+adjacency by physical or logical links, and choose features that the operator can
+propagate (for a potential field, a one-hot source plus a normalized degree suffices).
+(2) \emph{Pick the operator by range}: if the task is short-range, start with a $K$-layer
+GCN; if it is long-range on a large-diameter graph, use a global operator and treat the
+classical heat kernel as the default. (3) \emph{Add the quantum-inspired option as an
+ablation}, not as the hero: include $|e^{-it\Lap}|^2$ and, if you pursue it, sweep its
+base matrix (adjacency, Laplacian, normalized Laplacian) as in Exp~B2. (4) \emph{Keep it
+param-matched}: vary only the operator, holding depth, width, and weight shapes fixed.
+(5) \emph{Evaluate honestly}: multiple seeds with mean and standard deviation, a
+scale-free metric (AURC), honest denominators, and a verdict that treats any within-noise
+ranking as a tie. (6) \emph{Scale with care}: replace the $O(N^3)$ eigendecomposition by a
+Chebyshev or Krylov approximation of $e^{-it\Lap}\Feat$ before going to thousands of
+nodes. The case study in Section~\ref{sec:casestudy} is a worked instance of exactly this
+recipe.

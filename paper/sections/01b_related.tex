@@ -1,0 +1,54 @@
+\section{Related Tutorials and Where This One Differs}
+\label{sec:related}
+
+Three bodies of work meet in this tutorial, and it is useful to say up front what we
+borrow from each and what we add.
+
+\textit{Graph neural networks.} Surveys of GNNs~\cite{wu2021gnnsurvey} catalog
+architectures (spectral~\cite{bruna2014spectral,defferrard2016chebnet},
+convolutional~\cite{kipf2017gcn}, attentional~\cite{velickovic2018gat},
+message-passing~\cite{gilmer2017mpnn}, expressive~\cite{xu2019gin}, and
+inductive~\cite{hamilton2017graphsage}) and their applications. A parallel line studies
+the depth and range limits of these models, including over-smoothing fixes such as
+deep propagation~\cite{chen2020gcnii,gasteiger2019appnp} and the over-squashing and
+bottleneck phenomena that bound how far a local operator can carry
+information~\cite{alon2021bottleneck,topping2022oversquashing}. We do not add to that
+catalog. Instead we adopt the spectral, operator-theoretic reading of
+GNNs~\cite{shuman2013gsp} and push it to its conclusion: once a layer is written as a
+function of the Laplacian, the classical and quantum cases sit on the same axis.
+Diffusion-based learning~\cite{gasteiger2019diffusion} is the closest classical neighbor
+of our view, and dynamic-graph learning~\cite{rossi2020tgn,kazemi2020dynamicsurvey}
+supplies the time-varying setting.
+
+\textit{Quantum machine learning.} Reviews of quantum machine
+learning~\cite{biamonte2017qml,dunjko2018review} and variational quantum
+algorithms~\cite{cerezo2021vqa} survey models~\cite{schuld2014quest}, feature
+maps~\cite{schuld2019featurespace,havlicek2019supervised}, trainability and
+power~\cite{abbas2021power}, and the obstacles of the NISQ
+era~\cite{preskill2018nisq,mcclean2018barren}. Quantum graph models in particular,
+including quantum graph neural networks~\cite{verdon2019qgnn}, equivariant quantum graph
+circuits~\cite{mernyei2022equivariant}, quantum graph
+kernels~\cite{henry2021quantumkernel}, and the broad quantum-walk
+literature~\cite{farhi1998quantumwalk,kempe2003qwalk,childs2003exponential,childs2004quantumwalk,childs2009universal,venegas2012quantumwalks,portugal2013book},
+supply the operators we use. These works establish what is possible; they rarely
+isolate, on a controlled task, what the quantum operator changes relative to a
+param-matched classical one. That isolation is our contribution.
+
+\textit{Learning for non-terrestrial networks.} The networking literature surveys
+satellite systems~\cite{kodheli2021ntn}, studies low-latency routing over LEO
+constellations~\cite{handley2018delay}, and provides realistic
+simulators~\cite{kassing2020hypatia}. Graph and learning-based methods are by now
+established for network modeling and resource
+management~\cite{rusek2020routenet,shen2021gnnradio,eisen2020optimal,mao2016resource}.
+We borrow the dynamic-graph setting from this line of work but deliberately keep the
+task generic and the simulator minimal, so that the tutorial's conclusions are about
+operators rather than about one deployment.
+
+\textit{What is new here.} The gap these literatures leave is a single, teachable
+through-line from classical message passing to quantum walks, paired with an honest
+methodology for deciding whether the quantum option helps. We fill it with the
+propagation-operator view (Sections~\ref{sec:classical}--\ref{sec:quantum}), a built,
+runnable model (Section~\ref{sec:buildit}), a reproducible and multi-seed case study
+(Section~\ref{sec:casestudy}), and a pitfall catalogue with a checklist
+(Section~\ref{sec:pitfalls}). The aim is not breadth of coverage but a reader who can
+both build and judge.

@@ -1,0 +1,79 @@
+\section{Introduction}
+\IEEEPARstart{F}{uture} wireless networks are increasingly described not as fixed
+cells but as graphs that change over time. A LEO mega-constellation is the clearest
+example: hundreds to thousands of satellites move on known orbits, the inter
+satellite links form and break on a schedule, and the routing, traffic, and resource
+decisions all live on this moving graph. Unmanned aerial vehicle swarms, vehicular
+ad-hoc networks, and software-reconfigurable fabrics share the same shape, a node
+set with a time-varying edge set $G_t=(V,E_t)$. It is therefore natural that graph
+neural networks (GNNs)~\cite{kipf2017gcn,wu2021gnnsurvey} have moved to the center of
+learning-based network management, and equally natural that the community is asking
+what quantum and quantum-inspired learning~\cite{biamonte2017qml} can add on top.
+
+The special-issue theme of AI and quantum-enabled learning for future wireless
+networks captures this momentum. The accompanying literature, however, leaves a
+practitioner with two recurring gaps. First, the relationship between a classical
+GNN and a quantum graph model is usually described by analogy rather than as a
+precise statement, so it is hard to say what a quantum layer actually changes.
+Second, quantum results are often reported in a way that is difficult to trust:
+a single seed, a favorable operating point, or a metric whose scale is coupled to
+the problem size. A reader is left unable to separate a genuine quantum effect from
+an artifact of how the experiment was set up.
+
+\textbf{This tutorial closes both gaps with one idea.} Classical message passing,
+graph diffusion, and continuous-time quantum walks are not three unrelated methods;
+they are three choices of a single \emph{propagation operator} $\Prop(\Lap)$ acting
+on a graph signal through the Laplacian $\Lap$. Fixing the rest of the network and
+varying only $\Prop$ makes the models param-matched and turns vague comparisons into
+a controlled experiment. The operator view also makes the quantum mechanism concrete:
+the heat kernel $e^{-t\Lap}$ spreads diffusively, with second moment growing linearly
+in time, whereas the quantum walk $e^{-it\Lap}$ spreads \emph{ballistically}, with
+second moment growing quadratically. That single difference is the whole of what
+``going quantum'' buys at the propagation level, and we can measure it directly.
+
+\textbf{Scope.} This is a tutorial and a focused survey, built around an original,
+fully reproducible case study. The survey is organized by the propagation operator
+rather than by author or year: we map classical, quantum, and quantum-inspired graph learning and its use in
+wireless and non-terrestrial networks onto one axis (Section~\ref{sec:survey}), with the
+depth deliberately uneven, favoring the operators we then build and evaluate. The
+tutorial half teaches that one coherent framework, shows how to build a model from it,
+and, crucially, how to evaluate it without deceiving ourselves. The case study is
+deliberately small and fully reproducible so that every number and figure can be
+regenerated from the companion repository. It is also independent of any specific
+deployment pipeline: we study a clean node-potential task on a dynamic LEO graph, not a
+particular routing or traffic-engineering system.
+
+\textbf{Contributions.} The tutorial is organized around five takeaways.
+\begin{itemize}
+\item \textbf{C1, a unifying operator view and an operator-organized survey.} We present
+GCN, heat diffusion, and the quantum walk as instances of $\Prop(\Lap)$, with diffusive
+versus ballistic spreading as the distinguishing physics, and we survey the classical,
+quantum, quantum-inspired, and dynamic-graph branches plus their wireless and
+non-terrestrial applications on this single axis
+(Sections~\ref{sec:survey},~\ref{sec:classical}--\ref{sec:quantum}).
+\item \textbf{C2, build it.} We derive a param-matched quantum-inspired GNN layer that
+runs on classical hardware, with pseudocode and reference code (Section~\ref{sec:buildit}).
+\item \textbf{C3, a reproducible case study with scale and noise.} On a dynamic LEO graph
+we compare the operators with multiple seeds and scale-free metrics, report the outcome
+honestly, scale up to a $1584$-satellite shell, and add a NISQ-noise study showing how
+device noise erodes the ballistic mechanism (Section~\ref{sec:casestudy}).
+\item \textbf{C4, an honest-evaluation protocol.} We reproduce and then kill two
+pitfalls that fabricate advantages, a scale-coupled normalization and single-seed
+reporting, and give a reusable checklist (Section~\ref{sec:pitfalls}).
+\item \textbf{C5, a decision guide and roadmap.} We say when to reach for each
+operator and what stands between quantum-inspired models and true quantum hardware
+(Sections~\ref{sec:decision}--\ref{sec:roadmap}).
+\end{itemize}
+
+\textbf{A note on honesty.} Our case study does not hand the quantum-inspired operator
+an easy win, and it shows why the evaluation discipline matters. At small scale the
+quantum-inspired walk loses to a classical global operator and is noisier; at medium
+scale it only ties. Its advantage appears only at the largest scale we test ($1584$
+satellites), where it becomes the best operator, the diameter-driven trend its ballistic
+spreading predicts, and even there we temper the claim with a three-seed caveat. We
+report all of this plainly. For a tutorial, teaching readers how to reach and recognize a
+scale-dependent, conditional advantage, and how a single seed or scale would have
+misled, is at least as valuable as a headline win.
+
+Fig.~\ref{fig:reading} shows how to read the paper depending on your goal.
+\input{figs/fig_reading}

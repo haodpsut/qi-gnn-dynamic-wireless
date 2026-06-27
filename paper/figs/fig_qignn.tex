@@ -1,0 +1,28 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=5mm]
+% main horizontal data flow (clean line, no box in the way)
+\node[box] (x) {features\\$\mathbf{X}$};
+\node[hot, right=12mm of x] (prop) {$\Prop=|\Eig e^{-it_\ell\lambda}\Eig^{*}|^2$};
+\node[box, right=12mm of prop] (mix) {$\sigma(\Prop\Feat\Wt_\ell)$};
+\node[plain, right=10mm of mix] (out) {readout\\$\hat{\mathbf{y}}$};
+% eigendecomposition feeds the operator from below
+\node[plain, below=8mm of prop] (eig) {eig of $\Lap$: $(\lambda,\Eig)$};
+
+\draw[flow] (x) -- (prop);
+\draw[flow] (eig) -- (prop);
+\draw[flow] (prop) -- (mix);
+\draw[flow] (mix) -- (out);
+% recurrence over K layers: arc well above the boxes, label above the arc
+\draw[flow, dashed] (mix.north) .. controls +(0,10mm) and +(0,10mm) .. (prop.north);
+\node[font=\scriptsize, text=ink, above=1pt]
+  at ($(prop.north)!0.5!(mix.north) + (0,10mm)$)
+  {$\times K$ layers, learnable $t_\ell$};
+\end{tikzpicture}}
+\caption{QI-GNN data flow (Algorithm~\ref{alg:qignn}). The quantum-walk kernel is
+built once from the Laplacian spectrum (fed in from below) and reused across $K$ layers;
+the heat and GCN variants substitute their operator into the same template, keeping the
+models param-matched.}
+\label{fig:qignn}
+\end{figure}

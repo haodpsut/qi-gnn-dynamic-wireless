@@ -1,0 +1,24 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=4mm]
+\node[box] (goal) {Your goal};
+\node[hot, right=8mm of goal] (mech) {Understand the\\mechanism};
+\node[hot, below=3mm of mech] (build) {Build a model};
+\node[hot, below=3mm of build] (eval) {Evaluate it\\honestly};
+\node[plain, right=8mm of mech] (s34) {Sec.~\ref{sec:classical}--\ref{sec:quantum}};
+\node[plain, right=8mm of build] (s5) {Sec.~\ref{sec:buildit}--\ref{sec:casestudy}};
+\node[plain, right=8mm of eval] (s7) {Sec.~\ref{sec:pitfalls}};
+\draw[flow] (goal.east) -- (mech.west);
+\draw[flow] (goal.east) |- (build.west);
+\draw[flow] (goal.east) |- (eval.west);
+\draw[flow] (mech) -- (s34);
+\draw[flow] (build) -- (s5);
+\draw[flow] (eval) -- (s7);
+\end{tikzpicture}}
+\caption{Reading path. The unifying mechanism is in
+Sections~\ref{sec:classical}--\ref{sec:quantum}; how to build a model in
+Sections~\ref{sec:buildit}--\ref{sec:casestudy}; how to evaluate it without fooling
+yourself in Section~\ref{sec:pitfalls}.}
+\label{fig:reading}
+\end{figure}

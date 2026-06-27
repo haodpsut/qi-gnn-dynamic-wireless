@@ -1,0 +1,37 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.4cm, height=5.7cm,
+  xlabel={propagation time $t$}, ylabel={spread variance},
+  xmin=0, xmax=8, ymin=0, ymax=135,
+  legend pos=north west, legend cell align=left,
+  grid=major, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  legend style={font=\small, fill=white, fill opacity=0.85, draw=gray!40},
+  axis line style={gray!50},
+]
+% quantum walk: ballistic, area fill (baseline corners close the region)
+\addplot[draw=amber!80!black, very thick, mark=square*, mark size=1.4pt,
+         fill=palegold, fill opacity=0.45] coordinates {
+  (0,0)(1,2)(2,8)(3,18)(4,32)(5,50)(6,72)(7,98)(8,128)(8,0)} \closedcycle;
+\addlegendentry{quantum walk $|e^{-it\Lap}|^2\ (\sim t^2)$}
+% heat: diffusive, drawn on top
+\addplot[draw=steel, very thick, mark=*, mark size=1.4pt,
+         fill=paleblue, fill opacity=0.6] coordinates {
+  (0,0)(1,2)(2,4)(3,6)(4,8)(5,10)(6,12)(7,14)(8,16)(8,0)} \closedcycle;
+\addlegendentry{heat $e^{-t\Lap}\ (\sim t)$}
+\node[font=\footnotesize\bfseries, text=amber!75!black, rotate=58]
+  at (axis cs:6.0,86) {ballistic};
+\node[font=\footnotesize\bfseries, text=steel]
+  at (axis cs:6.7,21) {diffusive};
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~A, mechanism. Spatial second moment of a propagated impulse on a path
+graph versus propagation time. Heat diffusion grows linearly ($\Var\sim t$) and the
+quantum walk ballistically ($\Var\sim t^2$); a log-log fit gives slopes $1.00$ and
+$2.00$, matching \eqref{eq:diffusive} and \eqref{eq:ballistic}. The shaded gap is the
+quadratic-versus-linear reach advantage.}
+\label{fig:expA}
+\end{figure}

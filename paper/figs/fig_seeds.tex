@@ -1,0 +1,37 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+  width=8.4cm, height=5.7cm,
+  xlabel={seed}, ylabel={MAE (lower is better)},
+  xmin=-0.5, xmax=7.5, ymin=0.04, ymax=0.13,
+  xtick={0,1,2,3,4,5,6,7},
+  legend pos=north east, legend cell align=left,
+  grid=major, grid style={gray!18},
+  tick label style={font=\footnotesize}, label style={font=\small},
+  legend style={font=\scriptsize, fill=white, fill opacity=0.85, draw=gray!40},
+  axis line style={gray!50},
+  clip=false,
+]
+% mean +/- std bands (drawn behind the markers)
+\fill[amber!22] (axis cs:-0.5,0.073) rectangle (axis cs:7.5,0.097);
+\fill[steel!22] (axis cs:-0.5,0.059) rectangle (axis cs:7.5,0.069);
+\draw[amber!80!black, dashed, thick] (axis cs:-0.5,0.085) -- (axis cs:7.5,0.085);
+\draw[steel, dashed, thick] (axis cs:-0.5,0.064) -- (axis cs:7.5,0.064);
+% per-seed markers
+\addplot[only marks, mark=square*, amber!80!black, mark size=2pt] coordinates {
+  (0,0.0959)(1,0.0705)(2,0.1046)(3,0.0736)(4,0.0691)(5,0.0895)(6,0.0921)(7,0.0823)};
+\addlegendentry{QI (wide spread)}
+\addplot[only marks, mark=*, steel, mark size=2pt] coordinates {
+  (0,0.0658)(1,0.0586)(2,0.0642)(3,0.0638)(4,0.0542)(5,0.0687)(6,0.0616)(7,0.0726)};
+\addlegendentry{Heat (tight)}
+\end{axis}
+\end{tikzpicture}}
+\caption{Exp~C2, the single-seed pitfall ($66$ satellites, $8$ seeds). Dashed lines mark
+the per-operator means and shaded bands the $\pm$ one standard-deviation ranges. The
+quantum-inspired walk (QI) scatters widely while the heat kernel is tight; a single seed
+could show QI beating, matching, or losing to heat. Only the distribution,
+$\cTwoQw\pm\cTwoQwStd$ versus $\cTwoHeat\pm\cTwoHeatStd$, is trustworthy.}
+\label{fig:seeds}
+\end{figure}
