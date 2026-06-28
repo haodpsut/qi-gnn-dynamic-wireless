@@ -65,6 +65,19 @@ operator and what stands between quantum-inspired models and true quantum hardwa
 (Sections~\ref{sec:decision}--\ref{sec:roadmap}).
 \end{itemize}
 
+\textbf{Method in one paragraph.} Concretely, our method is a \emph{propagation-operator}
+treatment of graph learning. We write every model as $\Feat\mapsto\sigma(\Prop\,\Feat\,\Wt)$
+for a propagation operator $\Prop$ that is a function of the graph Laplacian, and we
+instantiate three choices on a common, \emph{parameter-matched} backbone: the GCN operator
+$\hat{\Adj}$ (local), the heat kernel $e^{-t\Lap}$ (classical global), and the
+quantum-inspired walk kernel $\big|e^{-it\Lap}\big|^2$ (the continuous-time quantum walk
+run as a classical layer, with a learnable propagation time). We then compare these
+operators on a single, reproducible node-potential task over a dynamic LEO graph under a
+fixed evaluation protocol, multiple seeds with mean and standard deviation, a scale-free
+far-node metric, a base-matrix sweep, and tests across scale and under simulated device
+noise. In one line: \emph{vary only the propagation operator, hold everything else fixed,
+and measure honestly.}
+
 \textbf{A note on honesty.} Our case study does not hand the quantum-inspired operator
 an easy win, and it shows why the evaluation discipline matters. At small scale the
 quantum-inspired walk loses to a classical global operator and is noisier; at medium
